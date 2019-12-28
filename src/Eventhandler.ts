@@ -2,17 +2,16 @@ export default class {
   private listeners: any = {};
 
   public addListener(eventName: string, listener: CallableFunction) {
-    if (this.listeners[eventName]) {
-      this.listeners[eventName].push(listener);
-    } else {
-      this.listeners[eventName] = [listener];
+    if (!this.listeners[eventName]) {
+      this.listeners[eventName]=[];
     }
+    this.listeners[eventName].push(listener);
   }
 
-  public dispatch(eventName: string, props: any = {}) {
+  public dispatch(eventName: string, props?:unknown) {
     const self = this;
     if (this.listeners[eventName]) {
-      this.listeners[eventName].map((listener: any) => {
+      this.listeners[eventName].map((listener: CallableFunction) => {
         try {
           listener(props);
         } catch (e) {

@@ -4,12 +4,12 @@
 	- npm run build
 	- npm run lint
 	- npm run format
-	- npm run start
+	- npm start
 
 ## Eventhandler
 
 	- addListener
-	- dispacth
+	- dispatch
 	- setErrorHandler
 	- on
 	
