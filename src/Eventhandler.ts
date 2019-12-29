@@ -3,12 +3,12 @@ export default class {
 
   public addListener(eventName: string, listener: CallableFunction) {
     if (!this.listeners[eventName]) {
-      this.listeners[eventName]=[];
+      this.listeners[eventName] = [];
     }
     this.listeners[eventName].push(listener);
   }
 
-  public dispatch(eventName: string, props?:unknown) {
+  public dispatch(eventName: string, props?: unknown) {
     const self = this;
     if (this.listeners[eventName]) {
       this.listeners[eventName].map((listener: CallableFunction) => {
