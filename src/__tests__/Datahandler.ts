@@ -28,3 +28,15 @@ test("Return defined value if defaultResult and requested property is defined", 
   curDatahandler.definedProperty = "isOk";
   expect(curDatahandler.getDataSave("definedProperty", "isNotOk")).toBe("isOk");
 });
+
+test("Test set multiple data",()=>{
+  const curDatahandler = new Datahandler();
+
+  curDatahandler.setMultipleData({
+    test1:'123',
+    test2:'hallo'
+  });
+
+  expect(curDatahandler.getData('test1')).toBe('123');
+  expect(curDatahandler.getData('test2')).toBe('hallo');
+})
