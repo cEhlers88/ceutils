@@ -1,8 +1,7 @@
+import {IDataEntry} from "./interfaces";
+
 export default class {
-  private data: Array<{
-    key: string;
-    value: any;
-  }> = [];
+  private data: IDataEntry[] = [];
 
   constructor() {
     const self = this;
@@ -30,6 +29,7 @@ export default class {
   public clearData(): void {
     this.data = [];
   }
+  public getAll():IDataEntry[]{return this.data;}
   public getData(key: string): any {
     const entry: { key: string; value: any } | undefined = this.data.find(
       (tmpEntry: { key: string; value: any }) => tmpEntry.key === key
