@@ -36,6 +36,14 @@ export default class {
     );
     return entry ? entry.value : undefined;
   }
+  public getDataSave(key: string, defaultResult: any): any {
+    let entryIndex: number | undefined = this.getDataIndex(key);
+    if (entryIndex === undefined) {
+      return defaultResult;
+    } else {
+      return this.data[entryIndex].value;
+    }
+  }
   public getDataIndex(key: string): number | undefined {
     let result: number | undefined;
     for (let index: number = 0; index < this.data.length; index++) {
