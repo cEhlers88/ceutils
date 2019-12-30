@@ -1,4 +1,4 @@
 export interface IDataEntry {
-    key: string;
-    value: any;
+  key: string;
+  value: any;
 }
