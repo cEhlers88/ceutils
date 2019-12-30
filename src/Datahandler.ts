@@ -65,9 +65,9 @@ export default class {
     }
     return this;
   }
-  public setMultipleData(data:any){
-    for(const name of Object.keys(data)){
-      this.setData(name,data[name]);
+  public setMultipleData(data: any) {
+    for (const name of Object.keys(data)) {
+      this.setData(name, data[name]);
     }
   }
 }
