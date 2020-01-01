@@ -1,11 +1,11 @@
 import Datahandler from "../Datahandler";
-let Handler:Datahandler;
+let Handler: Datahandler;
 
-beforeEach(()=>{
+beforeEach(() => {
   Handler = new Datahandler();
 });
 
-describe("Basics",()=>{
+describe("Basics", () => {
   test("getData should return previous setData", () => {
     Handler.setData("isok?", "isOk!");
     expect(Handler.getData("isok?")).toBe("isOk!");
@@ -33,20 +33,14 @@ describe("Basics",()=>{
     expect(Handler.getData("test1")).toBe("123");
     expect(Handler.getData("test2")).toBe("hallo");
   });
-  test("",()=>{
+  test("", () => {
     Handler.setMultipleData({
-      test1:'foo',
-      test2:'bar'
+      test1: "foo",
+      test2: "bar"
     });
     expect(Handler.getAll()).toEqual([
-        {key:'test1',value:'foo'},{key:'test2',value:'bar'}]);
+      { key: "test1", value: "foo" },
+      { key: "test2", value: "bar" }
+    ]);
   });
 });
-
-
-
-
-
-
-
-

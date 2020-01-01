@@ -17,10 +17,16 @@ export default class {
           self.handleError(e);
         }
       });
-    }else{this.handleError({message:"Event "+eventName+" not found."});}
+    } else {
+      this.handleError({ message: "Event " + eventName + " not found." });
+    }
   }
-  public getListeners(eventName:string):CallableFunction[]{return (this.listeners[eventName]?this.listeners[eventName]:[]);}
-  public removeListeners(eventName:string):void{this.listeners[eventName]=[];}
+  public getListeners(eventName: string): CallableFunction[] {
+    return this.listeners[eventName] ? this.listeners[eventName] : [];
+  }
+  public removeListeners(eventName: string): void {
+    this.listeners[eventName] = [];
+  }
   public setErrorHandle(newHandle: (e?: unknown) => void): void {
     this.handleError = newHandle;
   }
