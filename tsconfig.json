@@ -5,6 +5,7 @@
     "sourceMap": false,
     "declaration": true,
     "outDir": "dist",
+    "rootDir": "src",
     "strict": true,
     "isolatedModules": false,
     "allowSyntheticDefaultImports": true,
@@ -15,6 +16,7 @@
   ],
   "exclude": [
     "node_modules",
+    "**/__root__/*",
     "**/__tests__/*"
   ]
 }

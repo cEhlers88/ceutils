@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "esnext",
+    "outDir": "./",
+  },
+  "include": [
+    "src/__root__"
+  ],
+  "exclude": [
+
+  ]
+}
