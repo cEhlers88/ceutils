@@ -4,7 +4,7 @@
   "description": "utilities",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && tsc --p tsconfig.root.json",
     "test": "jest --config jestconfig.json",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
     "lint": "tslint -p tsconfig.json",
