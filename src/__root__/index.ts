@@ -1,10 +1,10 @@
-// @ts-ignore
-import DataHndl from "dist/handler/Datahandler";
-// @ts-ignore
-import EventHndl from "dist/handler/Eventhandler";
+import DataHndl from "../handler/Datahandler";
+import EventHndl from "../handler/Eventhandler";
 
 export default {
     Datahandler: DataHndl,
-    EventHndl
+    Eventhandler: EventHndl
 }
+
 export const Datahandler = DataHndl;
+export const Eventhandler = EventHndl;
