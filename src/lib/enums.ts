@@ -1,12 +1,12 @@
 export enum eComponentType {
-    unknown,
-    function,
-    reactComponent,
-    domElement,
-    managedReactComponent
+  unknown,
+  function,
+  reactComponent,
+  domElement,
+  managedReactComponent
 }
 
 export enum eDebugLevel {
-    none,
-    debug
+  none,
+  debug
 }

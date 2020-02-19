@@ -2,7 +2,7 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "esnext",
-    "outDir": "./",
+    "outDir": "./"
   },
   "include": [
     "src/__root__"

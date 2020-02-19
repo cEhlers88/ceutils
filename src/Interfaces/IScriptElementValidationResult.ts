@@ -1,4 +1,4 @@
 export default interface IScriptElementValidationResult {
-    validationResult:boolean;
-    validationResultMessage:string;
+  validationResult: boolean;
+  validationResultMessage: string;
 }

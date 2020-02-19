@@ -1,3 +1,3 @@
-export default interface IService{
-    getName():string
+export default interface IService {
+  getName(): string;
 }
