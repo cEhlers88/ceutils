@@ -139,8 +139,8 @@ export default class ComponentStarter {
     if (this.getDebugLevel() === eDebugLevel.debug) {
       // tslint:disable-next-line:no-eval
       eval(`console.${type}(message,additionals)`);
-    }else{
-      if('error' === type) {
+    } else {
+      if ("error" === type) {
         throw Error(message);
       }
     }

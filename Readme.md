@@ -8,9 +8,11 @@
 ```javascript
 import AbstractService from "./src/service/AbstractService";
 export default class MyService extends AbstractService {
+...
     getName() {
         return "MyService";
     }
+...
 }
 ```
 `app.js`
