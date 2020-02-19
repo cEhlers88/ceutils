@@ -55,17 +55,18 @@ export default class ComponentStarter {
     domEntryPoint: HTMLElement = document.body
   ): HTMLScriptElement[] {
     const resultScriptElements: HTMLScriptElement[] = [];
+    const searchElements: HTMLElement[] | any = domEntryPoint.querySelectorAll(
+      "script[type='" + this.config.typeNeedle + "']"
+    );
     // @ts-ignore
-    domEntryPoint
-      .querySelectorAll("script[type='" + this.config.typeNeedle + "']")
-      .forEach((element: HTMLScriptElement) => {
-        const checkResult = this.isScriptElementEvaluatable(element);
-        if (checkResult.validationResult) {
-          resultScriptElements.push(element);
-        } else {
-          this.debug(checkResult.validationResultMessage, element, "warn");
-        }
-      });
+    searchElements.forEach((element: HTMLScriptElement) => {
+      const checkResult = this.isScriptElementEvaluatable(element);
+      if (checkResult.validationResult) {
+        resultScriptElements.push(element);
+      } else {
+        this.debug(checkResult.validationResultMessage, element, "warn");
+      }
+    });
     return resultScriptElements;
   }
 
@@ -138,6 +139,10 @@ export default class ComponentStarter {
     if (this.getDebugLevel() === eDebugLevel.debug) {
       // tslint:disable-next-line:no-eval
       eval(`console.${type}(message,additionals)`);
+    }else{
+      if('error' === type) {
+        throw Error(message);
+      }
     }
   }
 

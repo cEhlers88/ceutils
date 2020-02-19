@@ -1,16 +1,41 @@
 # !Work in progress!
 # CEUTILS
 
-	- npm run build
-	- npm run lint
-	- npm run format
-	- npm start
+## ComponentStarter
 
-## Interfaces
+### Register service 
+`service.js`
+```javascript
+import AbstractService from "./src/service/AbstractService";
+export default class MyService extends AbstractService {
+    getName() {
+        return "MyService";
+    }
+}
+```
+`app.js`
+```typescript
+import ComponentStarter from "./src/service/ComponentStarter";
+import MyService from "./service"
 
-- IDataEntry
-    - key:string
-    - value:any
+const componentStarter = new ComponentStarter();
+componentStarter.registerComponent(MyService);
+```
+
+### Start React-Component
+```typescript
+import ComponentStarter from "./src/service/ComponentStarter";
+const test = new ComponentStarter();
+test.registerComponent()
+```
+
+```html
+...
+    <script >
+    
+    </script>
+...
+```
 
 ## Eventhandler
 
@@ -18,4 +43,12 @@
 	- dispatch
 	- setErrorHandler
 	- on
+
+## Interfaces
+
+- IDataEntry
+    - key:string
+    - value:any
+
+
 	
