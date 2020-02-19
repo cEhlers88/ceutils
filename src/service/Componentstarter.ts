@@ -1,7 +1,7 @@
-import IComponentstarterConfig from "../Interfaces/componentstarterConfig";
-import {eDebugLevel} from "../lib/enums";
 import React from "react";
 import ReactDOM from "react-dom"
+import IComponentstarterConfig from "../Interfaces/componentstarterConfig";
+import {eDebugLevel} from "../lib/enums";
 
 export default new class Componentstarter {
     private config:IComponentstarterConfig={
@@ -10,7 +10,7 @@ export default new class Componentstarter {
     };
     public execute(domEntryPoint:HTMLElement=document.body):void {
         this.getScriptsToEvaluate(domEntryPoint).forEach((script)=>{
-            console.log('ELEMENT',script);
+            // console.log('ELEMENT',script);
         });
     }
 

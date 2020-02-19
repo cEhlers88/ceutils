@@ -20,15 +20,18 @@ const appendChilds = (targetElement:HTMLElement, childs:HTMLElement[]) => {
 };
 const createElement = (tagname:string, properties?:any) => {
     const resultElement = document.createElement(tagname);
-    for(let name in properties){
-        // @ts-ignore
-        const magicProperty:any = config.magicProperties[name];
-        if(magicProperty){
-            magicProperty(resultElement,properties[name]);
-        }else{
-            resultElement.setAttribute(name, properties[name]);
-        }
+
+    if(properties) {
+        /*for(const name in properties){
+            const magicProperty: any = config.magicProperties[name];
+            if(config.magicProperties.hasOwnProperty(name)){
+                magicProperty(resultElement,properties[name]);
+            }else{
+                resultElement.setAttribute(name, properties[name]);
+            }
+        }*/
     }
+
     return resultElement;
 };
 const getElement = (elementNeedle:string) => {
