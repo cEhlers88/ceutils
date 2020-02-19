@@ -1,4 +1,4 @@
-import Datahandler from "../Datahandler";
+import Datahandler from "../src/handler/Datahandler";
 let Handler: Datahandler;
 
 beforeEach(() => {

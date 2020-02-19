@@ -1,4 +1,4 @@
-import Eventhandler from "../Eventhandler";
+import Eventhandler from "../src/handler/Eventhandler";
 let Handler: Eventhandler;
 
 beforeEach(() => {

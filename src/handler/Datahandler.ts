@@ -1,4 +1,4 @@
-import { IDataEntry } from "./interfaces";
+import { IDataEntry } from "../Interfaces";
 
 export default class {
   private data: IDataEntry[] = [];

@@ -6,6 +6,12 @@
 	- npm run format
 	- npm start
 
+## Interfaces
+
+- IDataEntry
+    - key:string
+    - value:any
+
 ## Eventhandler
 
 	- addListener
