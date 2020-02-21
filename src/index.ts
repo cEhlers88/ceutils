@@ -1,5 +1,5 @@
-import DataHndl from "../handler/Datahandler";
-import EventHndl from "../handler/Eventhandler";
+import DataHndl from "./handler/Datahandler";
+import EventHndl from "./handler/Eventhandler";
 
 export default {
   Datahandler: DataHndl,
