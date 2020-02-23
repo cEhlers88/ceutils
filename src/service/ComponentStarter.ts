@@ -7,7 +7,7 @@ import IScriptElementInformations from "../Interfaces/IScriptElementInformations
 import IScriptElementValidationResult from "../Interfaces/IScriptElementValidationResult";
 import IService from "../Interfaces/IService";
 import { eComponentType, eDebugLevel } from "../lib/enums";
-import AbstractService from "./AbstractService";
+import ComponentBaseService from "./ComponentBaseService";
 
 export default class ComponentStarter {
   public static DEFAULT_NAMESPACE: string = "general";
@@ -85,7 +85,7 @@ export default class ComponentStarter {
     componentName: string = "",
     namespace: string = ComponentStarter.DEFAULT_NAMESPACE
   ): ComponentStarter {
-    if (component instanceof AbstractService) {
+    if (component instanceof ComponentBaseService) {
       this.doRegisterService(component);
     } else {
       try {
@@ -155,7 +155,7 @@ export default class ComponentStarter {
     let type: eComponentType;
     let requiredServices: string[] = [];
 
-    if (componentInstance instanceof AbstractService) {
+    if (componentInstance instanceof ComponentBaseService) {
       throw Error(
         "Services needs to be initialized before add to ComponentStarter"
       );

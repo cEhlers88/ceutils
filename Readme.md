@@ -6,8 +6,8 @@
 ### Register service 
 `service.js`
 ```javascript
-import AbstractService from "./src/service/AbstractService";
-export default class MyService extends AbstractService {
+import ComponentBaseService from "./ComponentBaseService";
+export default class MyService extends ComponentBaseService {
 ...
     getName() {
         return "MyService";

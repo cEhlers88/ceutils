@@ -1,10 +1,10 @@
 import IService from "../../src/Interfaces/IService";
-import AbstractService from "../../src/service/AbstractService";
+import ComponentBaseService from "../../src/service/ComponentBaseService";
 import ComponentStarter from "../../src/service/ComponentStarter";
 
 let componentStarterInstance:ComponentStarter|any = {};
 
-const testService = class extends AbstractService {
+const testService = class extends ComponentBaseService {
     public getName(): string {
         return "test";
     }
@@ -50,7 +50,7 @@ describe('Servicebasics',()=>{
 
         componentStarterInstance.registerComponent(testServiceInstance);
 
-        expect(componentStarterInstance.getService(testServiceInstance.getName())).toBeInstanceOf(AbstractService);
+        expect(componentStarterInstance.getService(testServiceInstance.getName())).toBeInstanceOf(ComponentBaseService);
     });
 
     test('When register new service and try to get service by unknown name, the result should be undefined',()=>{
@@ -83,7 +83,7 @@ describe('Servicebasics',()=>{
 
     test("After register two different services, there should be 2 registered services",()=>{
         // tslint:disable-next-line:max-classes-per-file
-        const testService2 = class extends AbstractService {
+        const testService2 = class extends ComponentBaseService {
             public getName(): string {
                 return "test2";
             }
