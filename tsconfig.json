@@ -10,7 +10,8 @@
     "isolatedModules": false,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "jsx": "react"
+    "jsx": "react",
+    "allowJs": true
   },
   "include": [
     "src"
