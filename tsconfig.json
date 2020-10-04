@@ -4,7 +4,7 @@
     "target": "es6",
     "sourceMap": false,
     "declaration": true,
-    "outDir": "dist",
+    "outDir": "build",
     "rootDir": "src",
     "strict": true,
     "isolatedModules": false,

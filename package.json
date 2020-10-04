@@ -4,10 +4,11 @@
   "description": "utilities",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && npm run minify",
     "test": "jest --config jestconfig.json",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
     "lint": "tslint -p tsconfig.json",
+    "minify": "webpack",
     "prepare": "npm run build",
     "prepublishOnly": "npm test && npm run lint",
     "preversion": "npm run lint",
@@ -30,6 +31,8 @@
   "devDependencies": {
     "@types/jest": "^24.0.25",
     "@types/react": "^16.9.17",
+    "clean-webpack-plugin": "^3.0.0",
+    "glob": "^7.1.6",
     "jest": "^26.4.2",
     "prettier": "^1.19.1",
     "react": "^16.12.0",
@@ -37,7 +40,9 @@
     "ts-jest": "^26.4.1",
     "tslint": "^5.20.1",
     "tslint-config-prettier": "^1.18.0",
-    "typescript": "^4.0.3"
+    "typescript": "^4.0.3",
+    "webpack": "^4.44.2",
+    "webpack-cli": "^3.3.12"
   },
   "files": [
     "dist/**/*"
