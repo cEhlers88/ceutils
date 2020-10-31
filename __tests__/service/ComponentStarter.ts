@@ -14,12 +14,12 @@ beforeEach(()=>{
    componentStarterInstance = new ComponentStarter();
 });
 
-describe("Basics",()=>{
-    test('Local variable "componentStarterInstance" should be instance of ComponentStarter',()=>{
+describe("Some basic tests",()=>{
+    test('Local variable "componentStarterInstance" should be an instance of ComponentStarter',()=>{
         expect(componentStarterInstance).toBeInstanceOf(ComponentStarter);
     });
 
-    test('There should be 0 registered services after create new ComponentStarter',()=>{
+    test('There should be 0 registered services after just creating new ComponentStarter',()=>{
         expect(componentStarterInstance.getAllServices().length).toBe(0);
     });
 });

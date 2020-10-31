@@ -1,7 +1,8 @@
 import React from "react";
 import IComponentService from "../Interfaces/componentService";
 
-export default abstract class extends React.Component{
+export default abstract class ReactComponent extends React.Component{
+    public state:{services:any} = {services:[]};
     protected constructor(props:any) {
         super(props);
     }
@@ -9,27 +10,32 @@ export default abstract class extends React.Component{
     public abstract getComponentname():string
     public abstract getNamespace():string
 
-    // tslint:disable-next-line:no-empty
-    public bindService(service:IComponentService):void{}
+    public bindService(service:IComponentService): ReactComponent {
+        return this;
+    }
 
     public componentDidMount(): void {
         const self = this;
         this.getRequiredServices().map(servicename=>{
             try{
-                self.bindService(self.getService(servicename))
-                // tslint:disable-next-line:no-empty
-            }catch(e){}
+                self.bindService(self.getService(servicename));
+            }catch(e){
+                // placeholder
+            }
         });
     }
+
     public getRequiredServices():string[]{
         return [];
     }
+
     public getService(serviceName:string):IComponentService|any {
         if(this.getRequiredServices().indexOf(serviceName)>-1){
-            // @ts-ignore
             return this.state.services[serviceName];
         }
     }
-    // tslint:disable-next-line:no-empty
-    public unbindService(service:IComponentService):void{}
+
+    public unbindService(service:IComponentService):ReactComponent {
+        return this;
+    }
 }

@@ -38,7 +38,7 @@ export default class {
     );
     return entry ? entry.value : undefined;
   }
-  public getDataSave(key: string, defaultResult: any): any {
+  public getDataSave(key: string, defaultResult?: any): any {
     const entryIndex: number | undefined = this.getDataIndex(key);
     if (entryIndex === undefined) {
       return defaultResult;

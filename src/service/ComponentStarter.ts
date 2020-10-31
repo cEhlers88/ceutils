@@ -120,7 +120,7 @@ export default class ComponentStarter {
    *
    * @param newValue
    */
-  public setTypeneedle(newValue: string): ComponentStarter {
+  public setTypeNeedle(newValue: string): ComponentStarter {
     this.config.typeNeedle = newValue;
     return this;
   }
@@ -157,7 +157,7 @@ export default class ComponentStarter {
 
     if (componentInstance instanceof ComponentBaseService) {
       throw Error(
-        "Services needs to be initialized before add to ComponentStarter"
+        "Services needs to be initialized before they can add to the ComponentStarter"
       );
     }
     if (componentInstance instanceof ReactComponent) {

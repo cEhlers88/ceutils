@@ -8,6 +8,7 @@ const config = {
     }
   }
 };
+
 const appendChilds = (targetElement: HTMLElement, childs: HTMLElement[]) => {
   if (Array.isArray(childs)) {
     childs.map((childElement: HTMLElement, index: number) => {
@@ -18,22 +19,24 @@ const appendChilds = (targetElement: HTMLElement, childs: HTMLElement[]) => {
   }
   return targetElement;
 };
+
 const createElement = (tagname: string, properties?: any) => {
   const resultElement = document.createElement(tagname);
 
   if (properties) {
-    /*for(const name in properties){
-            const magicProperty: any = config.magicProperties[name];
-            if(config.magicProperties.hasOwnProperty(name)){
-                magicProperty(resultElement,properties[name]);
-            }else{
-                resultElement.setAttribute(name, properties[name]);
-            }
-        }*/
+    for (const name in properties) {
+      if (config.magicProperties.hasOwnProperty(name)) {
+        // @ts-ignore
+        config.magicProperties[name](resultElement, properties[name]);
+      } else {
+        resultElement.setAttribute(name, properties[name]);
+      }
+    }
   }
 
   return resultElement;
 };
+
 const getElement = (elementNeedle: string) => {
   switch (elementNeedle.charAt(0)) {
     case ".":
@@ -54,6 +57,7 @@ const getElement = (elementNeedle: string) => {
       break;
   }
 };
+
 const removeAllChilds = (targetElement: HTMLElement) => {
   while (targetElement.firstChild) {
     targetElement.removeChild(targetElement.firstChild);
