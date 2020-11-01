@@ -1,18 +1,35 @@
 const glob = require("glob");
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
+
 let entries = {};
-[
-    ...glob.sync("./build/*.js"),
-    ...glob.sync("./build/*/*.js")
+const types = [
+    ...glob.sync("./build/*.ts"),
+    ...glob.sync("./build/*/*.ts")
 ].map((item)=>{
-    entries[item] = item;
+    return {from:item, to:item.replace('./build','.')}
+});
+
+['js'].map(extension=>{
+    [
+        ...glob.sync("./build/*."+extension),
+        ...glob.sync("./build/*/*."+extension)
+    ].map((item)=>{
+        entries[item] = item;
+    });
 });
 
 module.exports = {
     mode: 'production',
     entry: entries,
     plugins: [
-        new CleanWebpackPlugin()
+        new CleanWebpackPlugin(),
+        new CopyPlugin({
+            patterns: types,
+            options: {
+                concurrency: 100,
+            },
+        }),
     ],
     output: {
         filename:(props)=>{
