@@ -1,4 +1,4 @@
-const config = {
+const config:{magicProperties:any} = {
   magicProperties: {
     childNodes: (targetElement: HTMLElement, childs: HTMLElement[]) => {
       appendChilds(targetElement, childs);
@@ -8,6 +8,17 @@ const config = {
     }
   }
 };
+
+[
+  {propName:'onClick',jsName:'click'},
+  {propName:'onKeyDown',jsName:'keyDown'},
+  {propName:'onKeyUp',jsName:'keyUp'},
+  {propName:'onSubmit',jsName:'submit'},
+].map((def:{propName:string,jsName:string})=>{
+  config.magicProperties[def.propName] = (targetElement:HTMLElement, listener:any) => {
+    targetElement.addEventListener(def.jsName,listener);
+  }
+});
 
 const appendChilds = (targetElement: HTMLElement, childs: HTMLElement[]) => {
   if (Array.isArray(childs)) {
