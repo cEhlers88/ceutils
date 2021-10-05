@@ -3,7 +3,7 @@ const config = {
     childNodes: (targetElement: HTMLElement, childs: HTMLElement[]) => {
       appendChilds(targetElement, childs);
     },
-    innertText: (targetElement: HTMLElement, value: string) => {
+    innerText: (targetElement: HTMLElement, value: string) => {
       targetElement.appendChild(document.createTextNode(value));
     }
   }

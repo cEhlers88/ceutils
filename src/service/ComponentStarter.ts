@@ -26,7 +26,6 @@ export default class ComponentStarter {
    * @param domEntryPoint
    */
   public execute(domEntryPoint: HTMLElement = document.body): ComponentStarter {
-    console.log('hallo');
     const self = this;
     this.getScriptsToEvaluate(domEntryPoint).map(
       self.renderComponent.bind(self)
