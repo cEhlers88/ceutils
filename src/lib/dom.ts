@@ -20,13 +20,15 @@ const config:{magicProperties:any} = {
   }
 });
 
-const appendChilds = (targetElement: HTMLElement, childs: HTMLElement[]) => {
+const appendChilds = (targetElement: HTMLElement, childs: HTMLElement|HTMLElement[]) => {
   if (Array.isArray(childs)) {
     childs.map((childElement: HTMLElement, index: number) => {
-      targetElement.appendChild(childElement);
+      appendChilds(targetElement, childElement);
     });
   } else {
-    targetElement.appendChild(childs);
+    if(childs instanceof HTMLElement){
+      targetElement.appendChild(childs);
+    }
   }
   return targetElement;
 };
