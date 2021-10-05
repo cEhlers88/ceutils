@@ -20,7 +20,7 @@ const config:{magicProperties:any} = {
   }
 });
 
-const appendChilds = (targetElement: HTMLElement, childs: HTMLElement|HTMLElement[]) => {
+const appendChilds = (targetElement: HTMLElement, childs: HTMLElement|HTMLElement[]):HTMLElement => {
   if (Array.isArray(childs)) {
     childs.map((childElement: HTMLElement, index: number) => {
       appendChilds(targetElement, childElement);
@@ -85,6 +85,19 @@ const removeAllChilds = (targetElement: HTMLElement):HTMLElement => {
   }
   return targetElement;
 };
+
+// @ts-ignore
+HTMLElement.prototype.appendChilds = function(childs: HTMLElement|HTMLElement[]):HTMLElement {
+  return appendChilds(this,childs);
+}
+// @ts-ignore
+HTMLElement.prototype.createChild = function(tagName:string, properties?: any):HTMLElement{
+  return appendChilds(this,createElement(tagName,properties));
+}
+// @ts-ignore
+HTMLElement.prototype.removeAllChilds = function():HTMLElement{
+  return removeAllChilds(this);
+}
 
 export default {
   appendChilds,
