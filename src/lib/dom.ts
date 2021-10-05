@@ -33,7 +33,7 @@ const appendChilds = (targetElement: HTMLElement, childs: HTMLElement|HTMLElemen
   return targetElement;
 };
 
-const createElement = (tagname: string, properties?: any) => {
+const createElement = (tagname: string, properties?: any):HTMLElement => {
   const resultElement = document.createElement(tagname);
 
   if (properties) {
@@ -50,10 +50,18 @@ const createElement = (tagname: string, properties?: any) => {
   return resultElement;
 };
 
-const getElement = (elementNeedle: string) => {
+const getElement = (elementNeedle: string):
+    Element|
+    HTMLElement|
+    HTMLCollectionOf<Element>|
+    NodeListOf<Element>|
+    null => {
   switch (elementNeedle.charAt(0)) {
     case ".":
       return document.getElementsByClassName(elementNeedle.substr(1));
+      break;
+    case "#":
+      return getElement(elementNeedle.substr(1));
       break;
     case "?":
       switch (elementNeedle.charAt(1)) {
@@ -71,10 +79,11 @@ const getElement = (elementNeedle: string) => {
   }
 };
 
-const removeAllChilds = (targetElement: HTMLElement) => {
+const removeAllChilds = (targetElement: HTMLElement):HTMLElement => {
   while (targetElement.firstChild) {
     targetElement.removeChild(targetElement.firstChild);
   }
+  return targetElement;
 };
 
 export default {
