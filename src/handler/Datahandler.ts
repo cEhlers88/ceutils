@@ -15,8 +15,7 @@ export default class {
       set(
         target: any,
         p: string | number | symbol,
-        value: any,
-        receiver: any
+        value: any
       ): boolean {
         if (typeof target[p] !== "undefined") {
           return (target[p] = value);
