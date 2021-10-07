@@ -21,7 +21,7 @@ const createStore = () => {
             return undefined;
         },
         set:(target, propertyName, value)=>{
-            let eventProps:{
+            const eventProps:{
                 name:any,
                 oldValue?:any,
                 value:any
