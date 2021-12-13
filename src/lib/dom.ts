@@ -1,7 +1,26 @@
-const config:{magicProperties:any} = {
+type TCreateElementProperties = {
+  alt?: string,
+  class?: string,
+  href?: string,
+  id?: string,
+  src?: string,
+  rel?: string,
+  [name:string]:any
+}
+const config:{
   magicProperties: {
-    childNodes: (targetElement: HTMLElement, childs: HTMLElement[]) => {
-      appendChilds(targetElement, childs);
+    childNodes:(targetElement:HTMLElement, children:HTMLElement[])=>void,
+    innerText:(targetElement:HTMLElement, value:string)=>void,
+    onClick?:(targetElement:HTMLElement, listener:CallableFunction)=>void,
+    onKeyDown?:(targetElement:HTMLElement, listener:CallableFunction)=>void,
+    onKeyUp?:(targetElement:HTMLElement, listener:CallableFunction)=>void,
+    onSubmit?:(targetElement:HTMLElement, listener:CallableFunction)=>void,
+    [name:string]:any
+  }
+} = {
+  magicProperties: {
+    childNodes: (targetElement: HTMLElement, children: HTMLElement[]) => {
+      appendChilds(targetElement, children);
     },
     innerText: (targetElement: HTMLElement, value: string) => {
       targetElement.appendChild(document.createTextNode(value));
@@ -33,7 +52,7 @@ const appendChilds = (targetElement: HTMLElement, childs: HTMLElement|HTMLElemen
   return targetElement;
 };
 
-const createElement = (tagname: string, properties?: any):HTMLElement => {
+const createElement = (tagname: string, properties?: TCreateElementProperties):HTMLElement => {
   const resultElement = document.createElement(tagname);
 
   if (properties) {
