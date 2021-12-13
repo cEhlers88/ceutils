@@ -1,13 +1,8 @@
 import {ICreateElementProperties} from "../Interfaces/ICreateElementProperties";
+import {IMagicProperties} from "../Interfaces/IMagicProperties";
 
 const config:{
-  magicProperties: {
-    childNodes:(targetElement:HTMLElement, children:HTMLElement[])=>void,
-    innerText:(targetElement:HTMLElement, value:string)=>void,
-    onClick?:(targetElement:HTMLElement, listener:CallableFunction)=>void,
-    onKeyDown?:(targetElement:HTMLElement, listener:CallableFunction)=>void,
-    onKeyUp?:(targetElement:HTMLElement, listener:CallableFunction)=>void,
-    onSubmit?:(targetElement:HTMLElement, listener:CallableFunction)=>void,
+  magicProperties: IMagicProperties & {
     [name:string]:any
   }
 } = {

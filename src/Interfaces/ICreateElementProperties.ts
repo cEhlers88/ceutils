@@ -4,7 +4,9 @@
  *
  * @author Christoph Ehlers <ce@construktiv.de> | Construktiv GmbH
  */
-export interface ICreateElementProperties{
+import {IMagicProperties} from "./IMagicProperties";
+
+export interface ICreateElementProperties extends IMagicProperties {
     alt?: string,
     class?: string,
     href?: string,
