@@ -1,12 +1,5 @@
-type TCreateElementProperties = {
-  alt?: string,
-  class?: string,
-  href?: string,
-  id?: string,
-  src?: string,
-  rel?: string,
-  [name:string]:any
-}
+import {ICreateElementProperties} from "../Interfaces/ICreateElementProperties";
+
 const config:{
   magicProperties: {
     childNodes:(targetElement:HTMLElement, children:HTMLElement[])=>void,
@@ -52,7 +45,7 @@ const appendChilds = (targetElement: HTMLElement, childs: HTMLElement|HTMLElemen
   return targetElement;
 };
 
-const createElement = (tagname: string, properties?: TCreateElementProperties):HTMLElement => {
+const createElement = (tagname: string, properties?: ICreateElementProperties):HTMLElement => {
   const resultElement = document.createElement(tagname);
 
   if (properties) {
