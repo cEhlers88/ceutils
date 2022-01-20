@@ -10,6 +10,11 @@ const config:{
     childNodes: (targetElement: HTMLElement, children: HTMLElement[]) => {
       appendChilds(targetElement, children);
     },
+    data: (targetElement: HTMLElement, value: {[name:string]:string}) => {
+      for(let key in value){
+        targetElement.dataset[key] = value[key];
+      }
+    },
     innerText: (targetElement: HTMLElement, value: string) => {
       targetElement.appendChild(document.createTextNode(value));
     }

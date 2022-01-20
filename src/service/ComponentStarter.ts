@@ -95,7 +95,7 @@ export default class ComponentStarter {
           componentName,
           namespace
         );
-      } catch (e) {
+      } catch (e:any) {
         if (1 < String(e).indexOf("not a constructor")) {
           throw Error("Unknown Type");
         }
