@@ -11,8 +11,10 @@ const config:{
       appendChilds(targetElement, children);
     },
     data: (targetElement: HTMLElement, value: {[name:string]:string}) => {
-      for(let key in value){
-        targetElement.dataset[key] = value[key];
+      for(const key in value){
+        if(value.hasOwnProperty(key)){
+          targetElement.dataset[key] = value[key];
+        }
       }
     },
     innerText: (targetElement: HTMLElement, value: string) => {
