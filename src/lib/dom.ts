@@ -93,6 +93,16 @@ const getElement = (elementNeedle: string):
   }
 };
 
+const getParentWithClass= ( element:HTMLElement|any, className:string ) => {
+  while (element.parentNode){
+    if(element.parentNode.classList.contains(className)){
+      return element.parentNode;
+    }
+    element = element.parentNode;
+  }
+  return false;
+}
+
 const removeAllChilds = (targetElement: HTMLElement):HTMLElement => {
   while (targetElement.firstChild) {
     targetElement.removeChild(targetElement.firstChild);
@@ -109,6 +119,10 @@ HTMLElement.prototype.createChild = function(tagName:string, properties?: any):H
   return appendChilds(this,createElement(tagName,properties));
 }
 // @ts-ignore
+HTMLElement.prototype.getParentWithClass = function(className:string):HTMLElement{
+  return getParentWithClass(this,className);
+}
+// @ts-ignore
 HTMLElement.prototype.removeAllChilds = function():HTMLElement{
   return removeAllChilds(this);
 }
@@ -117,5 +131,6 @@ export default {
   appendChilds,
   createElement,
   getElement,
+  getParentWithClass,
   removeAllChilds
 };
