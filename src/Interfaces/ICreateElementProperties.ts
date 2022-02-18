@@ -4,19 +4,14 @@
  *
  * @author Christoph Ehlers <ce@construktiv.de> | Construktiv GmbH
  */
+import {IMagicProperties} from "./IMagicProperties";
 
-export interface ICreateElementProperties {
+export interface ICreateElementProperties extends IMagicProperties {
     alt?: string,
     class?: string,
     href?: string,
     id?: string,
     src?: string,
-    rel?: string,
-    childNodes?:HTMLElement[],
-    innerText?:string,
-    onClick?:CallableFunction,
-    onKeyDown?:CallableFunction,
-    onKeyUp?:CallableFunction,
-    onSubmit?:CallableFunction,
+    rel?: string
     [name:string]:any
 }

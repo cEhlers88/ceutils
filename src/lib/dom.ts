@@ -24,7 +24,10 @@ const config:{
 };
 
 [
+  {propName:'onBlur',jsName:'blur'},
+  {propName:'onChange',jsName:'change'},
   {propName:'onClick',jsName:'click'},
+  {propName:'onFocus',jsName:'focus'},
   {propName:'onKeyDown',jsName:'keyDown'},
   {propName:'onKeyUp',jsName:'keyUp'},
   {propName:'onSubmit',jsName:'submit'},
@@ -49,7 +52,6 @@ const appendChilds = (targetElement: HTMLElement, childs: HTMLElement|HTMLElemen
 
 const createElement = (tagname: string, properties?: ICreateElementProperties):HTMLElement => {
   const resultElement = document.createElement(tagname);
-
   if (properties) {
     for (const name in properties) {
       if (config.magicProperties.hasOwnProperty(name)) {

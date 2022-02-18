@@ -1,7 +1,6 @@
 import Eventhandler from "../handler/Eventhandler";
 
 const createStore = () => {
-
     class Store extends Eventhandler {
         public __data:{};
 
@@ -14,6 +13,9 @@ const createStore = () => {
         get: (target:any, propertyName:string) => {
             if(propertyName==='on'){
                 return target.addListener.bind(target);
+            }
+            if(propertyName==='getAll'){
+                return target.__data;
             }
             if(target.__data[propertyName]){
                 return target.__data[propertyName];
@@ -29,7 +31,6 @@ const createStore = () => {
                 name: propertyName,
                 value
             };
-
             if(target.__data[propertyName]){
                 eventProps.oldValue = target.__data[propertyName];
                 target.dispatch('updateStore',eventProps);
