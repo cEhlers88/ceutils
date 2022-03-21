@@ -8,10 +8,13 @@ import {IMagicProperties} from "./IMagicProperties";
 
 export interface ICreateElementProperties extends IMagicProperties {
     alt?: string,
+    data?: { [name:string]:any },
     class?: string,
+    height?: string,
     href?: string,
     id?: string,
     src?: string,
     rel?: string
+    width?: string
     [name:string]:any
 }

@@ -1,6 +1,15 @@
 import {ICreateElementProperties} from "../Interfaces/ICreateElementProperties";
 import {IMagicProperties} from "../Interfaces/IMagicProperties";
 
+declare global {
+  interface HTMLElement {
+    appendChilds: CallableFunction,
+    createChild: CallableFunction,
+    getParentWithClass: CallableFunction,
+    removeAllChilds: CallableFunction,
+  }
+}
+
 const config:{
   magicProperties: IMagicProperties & {
     [name:string]:any
@@ -8,7 +17,7 @@ const config:{
 } = {
   magicProperties: {
     childNodes: (targetElement: HTMLElement, children: HTMLElement[]) => {
-      appendChilds(targetElement, children);
+      functions.appendChilds(targetElement, children);
     },
     data: (targetElement: HTMLElement, value: {[name:string]:string}) => {
       for(const key in value){
@@ -19,6 +28,64 @@ const config:{
     },
     innerText: (targetElement: HTMLElement, value: string) => {
       targetElement.appendChild(document.createTextNode(value));
+    }
+  }
+};
+
+const functions = {
+  appendChilds: (targetElement: HTMLElement, childs: HTMLElement|HTMLElement[]):HTMLElement => {
+    if (Array.isArray(childs)) {
+      childs.map((childElement: HTMLElement, index: number) => {
+        functions.appendChilds(targetElement, childElement);
+      });
+    } else {
+      if(childs instanceof HTMLElement){
+        targetElement.appendChild(childs);
+      }
+    }
+    return targetElement;
+  },
+  createElement: (tagname: string, properties?: ICreateElementProperties):HTMLElement => {
+    const resultElement = document.createElement(tagname);
+    if (properties) {
+      for (const name in properties) {
+        if (config.magicProperties.hasOwnProperty(name)) {
+          // @ts-ignore
+          config.magicProperties[name](resultElement, properties[name]);
+        } else {
+          resultElement.setAttribute(name, properties[name]);
+        }
+      }
+    }
+
+    return resultElement;
+  },
+  getElement: (elementNeedle: string):
+      Element|
+      HTMLElement|
+      HTMLCollectionOf<Element>|
+      NodeListOf<Element>|
+      null => {
+    switch (elementNeedle.charAt(0)) {
+      case ".":
+        return document.getElementsByClassName(elementNeedle.substr(1));
+        break;
+      case "#":
+        return functions.getElement(elementNeedle.substr(1));
+        break;
+      case "?":
+        switch (elementNeedle.charAt(1)) {
+          case "*":
+            return document.querySelectorAll(elementNeedle.substr(2));
+            break;
+          default:
+            return document.querySelector(elementNeedle.substr(1));
+            break;
+        }
+        break;
+      default:
+        return document.getElementById(elementNeedle);
+        break;
     }
   }
 };
@@ -37,64 +104,6 @@ const config:{
   }
 });
 
-const appendChilds = (targetElement: HTMLElement, childs: HTMLElement|HTMLElement[]):HTMLElement => {
-  if (Array.isArray(childs)) {
-    childs.map((childElement: HTMLElement, index: number) => {
-      appendChilds(targetElement, childElement);
-    });
-  } else {
-    if(childs instanceof HTMLElement){
-      targetElement.appendChild(childs);
-    }
-  }
-  return targetElement;
-};
-
-const createElement = (tagname: string, properties?: ICreateElementProperties):HTMLElement => {
-  const resultElement = document.createElement(tagname);
-  if (properties) {
-    for (const name in properties) {
-      if (config.magicProperties.hasOwnProperty(name)) {
-        // @ts-ignore
-        config.magicProperties[name](resultElement, properties[name]);
-      } else {
-        resultElement.setAttribute(name, properties[name]);
-      }
-    }
-  }
-
-  return resultElement;
-};
-
-const getElement = (elementNeedle: string):
-    Element|
-    HTMLElement|
-    HTMLCollectionOf<Element>|
-    NodeListOf<Element>|
-    null => {
-  switch (elementNeedle.charAt(0)) {
-    case ".":
-      return document.getElementsByClassName(elementNeedle.substr(1));
-      break;
-    case "#":
-      return getElement(elementNeedle.substr(1));
-      break;
-    case "?":
-      switch (elementNeedle.charAt(1)) {
-        case "*":
-          return document.querySelectorAll(elementNeedle.substr(2));
-          break;
-        default:
-          return document.querySelector(elementNeedle.substr(1));
-          break;
-      }
-      break;
-    default:
-      return document.getElementById(elementNeedle);
-      break;
-  }
-};
-
 const getParentWithClass= ( element:HTMLElement|any, className:string ) => {
   while (element.parentNode){
     if(element.parentNode.classList.contains(className)){
@@ -112,27 +121,26 @@ const removeAllChilds = (targetElement: HTMLElement):HTMLElement => {
   return targetElement;
 };
 
-// @ts-ignore
 HTMLElement.prototype.appendChilds = function(childs: HTMLElement|HTMLElement[]):HTMLElement {
-  return appendChilds(this,childs);
+  return functions.appendChilds(this,childs);
 }
-// @ts-ignore
 HTMLElement.prototype.createChild = function(tagName:string, properties?: any):HTMLElement{
-  return appendChilds(this,createElement(tagName,properties));
+  return functions.appendChilds(this,createElement(tagName,properties));
 }
-// @ts-ignore
 HTMLElement.prototype.getParentWithClass = function(className:string):HTMLElement{
   return getParentWithClass(this,className);
 }
-// @ts-ignore
 HTMLElement.prototype.removeAllChilds = function():HTMLElement{
   return removeAllChilds(this);
 }
 
 export default {
-  appendChilds,
-  createElement,
-  getElement,
+  appendChilds:functions.appendChilds,
+  createElement: functions.createElement,
+  getElement: functions.getElement,
   getParentWithClass,
   removeAllChilds
 };
+
+export const createElement = functions.createElement;
+export const getElement = functions.getElement;

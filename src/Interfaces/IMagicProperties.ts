@@ -6,7 +6,7 @@
  */
 export interface IMagicProperties {
     childNodes?:(targetElement:HTMLElement, children:HTMLElement[])=>void,
-    innerText?:(targetElement:HTMLElement, value:string)=>void,
+    innerText?:((targetElement:HTMLElement, value:string)=>void)|string,
     onBlur?:(targetElement:HTMLElement, listener:CallableFunction)=>void,
     onChange?:(targetElement:HTMLElement, listener:CallableFunction)=>void,
     onClick?:(targetElement:HTMLElement, listener:CallableFunction)=>void,

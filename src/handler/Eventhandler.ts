@@ -1,7 +1,7 @@
 import IEventListener from "../Interfaces/IEventListener";
 
 export default class {
-  private listeners: IEventListener[] = [];
+  public listeners: IEventListener[] = [];//private
 
   public addListener(eventName: string, listener: CallableFunction) {
     let eventListenerInfo = this.getEventListenerInfo(eventName);
@@ -52,7 +52,7 @@ export default class {
     }
   }
 
-  private getEventListenerInfo(
+  public getEventListenerInfo( //private
     eventName: string
   ): { index: number; eventListener: IEventListener | undefined } {
     const result: {
@@ -72,7 +72,7 @@ export default class {
     }
     return result;
   }
-  private handleError: (e?: unknown) => void = () => {
+  public handleError: (e?: unknown) => void = () => {
     return null;
-  };
+  }; //private
 }
