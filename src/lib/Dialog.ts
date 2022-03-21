@@ -4,44 +4,39 @@
  *
  * @author Christoph Ehlers <ce@construktiv.de> | Construktiv GmbH
  */
-import {createElement} from "./dom";
 import {IDialog} from "../Interfaces/IDialog";
+import {createElement} from "./dom";
 
 export default abstract class Dialog implements IDialog{
-    name:string;
+    protected name:string;
 
     constructor() {
         this.name = '';
     }
 
-    getAcceptations():[]{
+    public getAcceptations():[]{
         return [];
     }
 
-    getDefaultProviderOptions(){
+    public getDefaultProviderOptions(){
         return {
             abortAble: false
         }
     }
 
-    getName(){
+    public getName(){
         return this.name;
     }
 
-    onRendered(element:HTMLElement){}
-
-    validate(){
+    public validate(){
         return {
-            hadError: false,
             errorMessage: '',
+            hadError: false,
             reOpen: false
         }
     }
 
-    render(props: any): HTMLElement {
-        return createElement('div');
-    }
-
-    reset(): void {
-    }
+    public abstract render(props: any): HTMLElement ;
+    public abstract reset():void;
+    public abstract onRendered(element:HTMLElement):void;
 }

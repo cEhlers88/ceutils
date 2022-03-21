@@ -5,9 +5,9 @@
  * @author Christoph Ehlers <ce@construktiv.de> | Construktiv GmbH
  */
 import Eventhandler from "../handler/Eventhandler";
-import {createElement} from "../lib/dom";
 import {IDialog} from "../Interfaces/IDialog";
-
+import {createElement} from "../lib/dom";
+/* tslint:disable */
 declare global {
     interface Window {
         _ceDialogStore: {
@@ -16,7 +16,7 @@ declare global {
         }[]
     }
 };
-
+/* tslint:enable */
 const providerProps:{
     defaultDialog: string,
     keepDomClear: boolean,
@@ -37,8 +37,8 @@ const providerProps:{
 
 const eventName = {
     dialogAdded: 'dialogAdded',
+    dialogClosed: 'dialogClosed', // not implemented
     dialogOpened: 'dialogOpened', // not implemented
-    dialogClosed: 'dialogClosed' // not implemented
 };
 
 const domInteraction:{
@@ -80,15 +80,15 @@ const renderDialogFooter = (props:{
     onAccept:CallableFunction
 }) => {
     const element = createElement('div',{class:'dialog-footer'});
-    const buttons = [{text:providerProps.textAccept,class:'button--accept', onClick:()=>{
+    const buttons = [{class:'button--accept', onClick:()=>{
             props.onAccept();
             domInteraction.disableRootNode();
-        }}]
+        },text:providerProps.textAccept}]
 
     if(props.abortAble){
-        buttons.push({text:providerProps.textAbort, class:'button--abort', onClick:()=>{
+        buttons.push({class:'button--abort', onClick:()=>{
                 domInteraction.disableRootNode();
-            }});
+            },text:providerProps.textAbort});
     }
 
     buttons.map(buttonDef=>{
@@ -110,14 +110,14 @@ export default new class DialogProvider extends Eventhandler {
         if(!window._ceDialogStore){window._ceDialogStore = [];}
     }
 
-    conditionalOpen(condition:CallableFunction|boolean, name:string, dialogProperties:any={}, providerOptions:any=null){
+    public conditionalOpen(condition:CallableFunction|boolean, name:string, dialogProperties:any={}, providerOptions:any=null){
         if(condition instanceof Function){
             condition = condition();
         }
         if(condition){
             window._ceDialogStore.map(storedDialog=>{
                 if(providerOptions && storedDialog.name.toLowerCase() === name.toLowerCase()){
-                    const _onAccept = providerOptions.onAccept ? providerOptions.onAccept : ()=>{};
+                    const _onAccept = providerOptions.onAccept ? providerOptions.onAccept : ()=>null;
                     _onAccept(storedDialog.dialog.getAcceptations());
                     storedDialog.dialog.reset();
                 }
@@ -127,13 +127,13 @@ export default new class DialogProvider extends Eventhandler {
         }
     }
 
-    open(name:string, dialogProperties:any={}, providerOptions:any= {}){
+    public open(name:string, dialogProperties:any={}, providerOptions:any= {}){
         let found = false;
 
         window._ceDialogStore.map(storedDialog=>{
             if(!found && storedDialog.name.toLowerCase() === name.toLowerCase()){
                 found = true;
-                const _onAccept = providerOptions.onAccept ? providerOptions.onAccept : ()=>{};
+                const _onAccept = providerOptions.onAccept ? providerOptions.onAccept : ()=>null;
                 const _providerOptions = {
                     ...storedDialog.dialog.getDefaultProviderOptions(),
                     ...providerOptions,
@@ -145,8 +145,8 @@ export default new class DialogProvider extends Eventhandler {
                         }else{
                             setTimeout(()=>{
                                 this.open(providerOptions.defaultDialog,{
+                                    text: validation.errorMessage,
                                     title: _providerOptions.textError,
-                                    text: validation.errorMessage
                                 },{
                                     onAccept: ()=>{
                                         if(validation.reOpen) {
@@ -188,13 +188,10 @@ export default new class DialogProvider extends Eventhandler {
                 document.getElementById('wpwrap').setAttribute('style','transition:filter 1s;filter:blur(2px);');
             }
         });
-        if(!found){
-            console.error('Dialog not found',{name,dialogProperties,providerOptions})
-        }
         return this;
     }
 
-    register(dialog:IDialog, name:string=''){
+    public register(dialog:IDialog, name:string=''){
         if(name===''){name=dialog.getName();}
         let found = false;
         window._ceDialogStore.map(def=>{

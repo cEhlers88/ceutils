@@ -1,6 +1,6 @@
 import {ICreateElementProperties} from "../Interfaces/ICreateElementProperties";
 import {IMagicProperties} from "../Interfaces/IMagicProperties";
-
+/* tslint:disable */
 declare global {
   interface HTMLElement {
     appendChilds: CallableFunction,
@@ -9,6 +9,7 @@ declare global {
     removeAllChilds: CallableFunction,
   }
 }
+/* tslint:enable */
 
 const config:{
   magicProperties: IMagicProperties & {
