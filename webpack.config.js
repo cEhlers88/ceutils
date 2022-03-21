@@ -6,7 +6,7 @@ const path = require("path");
 let entries = {};
 const types = [
     ...glob.sync("./build/*.ts"),
-    ...glob.sync("./build/*/*.ts")
+    ...glob.sync("./build/*/*.ts"),
 ].map((item)=>{
     return {from:item, to:item.replace('./build','.')}
 });
@@ -22,7 +22,10 @@ const types = [
 
 module.exports = {
     mode: 'production',
-    entry: entries,
+    entry: {
+        ...entries,
+        //'dialog': './src/styles/Dialog.scss'
+    },
     plugins: [
         new CleanWebpackPlugin(),
         /*new CopyPlugin({
@@ -37,5 +40,23 @@ module.exports = {
             return props.chunk.entryModule.rawRequest.substring(8);
         },
         path: path.resolve(__dirname,'dist')
-    }
+    },
+    module: {
+        rules: [
+            /*{
+                test: /\.scss$/,
+                use: [
+                    'style-loader', // creates style nodes from JS strings
+                    {
+                        loader: 'css-loader', // translates CSS into CommonJS
+                        options: {
+                            importLoaders: 1
+                        }
+                    },
+                    //'postcss-loader', // post process the compiled CSS
+                    'sass-loader' // compiles Sass to CSS, using Node Sass by default
+                ]
+            }*/
+        ],
+    },
 };

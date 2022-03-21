@@ -6,6 +6,7 @@
     "declaration": true,
     "outDir": "build",
     "rootDir": "src",
+    "skipLibCheck": true,
     "strict": true,
     "isolatedModules": false,
     "allowSyntheticDefaultImports": true,

@@ -135,7 +135,8 @@ export default new class DialogProvider extends Eventhandler {
                 found = true;
                 const _onAccept = providerOptions.onAccept ? providerOptions.onAccept : ()=>null;
                 const _providerOptions = {
-                    ...storedDialog.dialog.getDefaultProviderOptions(),
+                    ...(storedDialog.dialog.getDefaultProviderOptions && typeof storedDialog.dialog.getDefaultProviderOptions ===  'function' ?
+                        storedDialog.dialog.getDefaultProviderOptions() : {}),
                     ...providerOptions,
                     onAccept:()=>{
                         const validation = storedDialog.dialog.validate();
@@ -183,9 +184,6 @@ export default new class DialogProvider extends Eventhandler {
                 domInteraction.getRootNode().appendChild(dialog);
 
                 storedDialog.dialog.onRendered(renderedDialogContent);
-
-                // @ts-ignore
-                document.getElementById('wpwrap').setAttribute('style','transition:filter 1s;filter:blur(2px);');
             }
         });
         return this;
