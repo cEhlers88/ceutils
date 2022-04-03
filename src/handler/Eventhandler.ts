@@ -67,8 +67,8 @@ export default class {
       if (eventName === this.listeners[i].eventName) {
         result.eventListener = this.listeners[i];
         result.index = i;
+        break;
       }
-      break;
     }
     return result;
   }
