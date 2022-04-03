@@ -16,7 +16,7 @@ export default class {
   public dispatch(eventName: string, props?: unknown) {
     const self = this;
     const eventListenerInfo = this.getEventListenerInfo(eventName);
-    if (-1 !== eventListenerInfo.index) {
+    if (-1 !== eventListenerInfo.index && this.listeners[eventListenerInfo.index]) {
       this.listeners[eventListenerInfo.index].callbacks.map(
         (listener: CallableFunction) => {
           try {

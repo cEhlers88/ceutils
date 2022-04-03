@@ -17,7 +17,7 @@ const config:{
   }
 } = {
   magicProperties: {
-    childNodes: (targetElement: HTMLElement, children: HTMLElement[]) => {
+    childNodes: (targetElement: HTMLElement, children: HTMLElement[]|Text[]) => {
       functions.appendChilds(targetElement, children);
     },
     data: (targetElement: HTMLElement, value: {[name:string]:string}) => {
@@ -34,13 +34,13 @@ const config:{
 };
 
 const functions = {
-  appendChilds: (targetElement: HTMLElement, childs: HTMLElement|HTMLElement[]):HTMLElement => {
+  appendChilds: (targetElement: HTMLElement, childs: HTMLElement|Text|HTMLElement[]|Text[]):HTMLElement => {
     if (Array.isArray(childs)) {
-      childs.map((childElement: HTMLElement, index: number) => {
+      childs.map((childElement: HTMLElement|Text, index: number) => {
         functions.appendChilds(targetElement, childElement);
       });
     } else {
-      if(childs instanceof HTMLElement){
+      if(childs instanceof HTMLElement || childs instanceof Text){
         targetElement.appendChild(childs);
       }
     }

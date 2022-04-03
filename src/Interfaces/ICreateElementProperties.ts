@@ -13,6 +13,7 @@ export interface ICreateElementProperties extends IMagicProperties {
     height?: string,
     href?: string,
     id?: string,
+    placeholder?:string,
     src?: string,
     rel?: string
     width?: string
