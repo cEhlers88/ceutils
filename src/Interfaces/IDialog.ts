@@ -13,6 +13,7 @@ export interface IDialog {
     getName:()=>string,
     onRendered:(element:HTMLElement)=>void,
     render:(props:any)=>HTMLElement,
+    updateProps:(newProps:any)=>void,
     validate:()=>{
         hadError: boolean,
         errorMessage: string,

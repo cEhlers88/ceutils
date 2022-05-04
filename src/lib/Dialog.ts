@@ -6,11 +6,13 @@
  */
 import {IDialog} from "../Interfaces/IDialog";
 import {createElement} from "./dom";
+import Eventhandler from "../handler/Eventhandler";
 
-export default abstract class Dialog implements IDialog{
+export default abstract class Dialog extends Eventhandler implements IDialog{
     protected name:string;
 
     constructor() {
+        super();
         this.name = '';
     }
 
@@ -39,4 +41,8 @@ export default abstract class Dialog implements IDialog{
     public abstract render(props: any): HTMLElement ;
     public abstract reset():void;
     public abstract onRendered(element:HTMLElement):void;
+
+    updateProps(newProps: any): void {
+        this.dispatch('propsUpdated',newProps);
+    }
 }

@@ -5,14 +5,14 @@
  * @author Christoph Ehlers <ce@construktiv.de> | Construktiv GmbH
  */
 import Eventhandler from "../handler/Eventhandler";
-import {IDialog} from "../Interfaces/IDialog";
 import {createElement} from "../lib/dom";
+import Dialog from "../lib/Dialog";
 /* tslint:disable */
 declare global {
     interface Window {
         _ceDialogStore: {
             name: string,
-            dialog: IDialog
+            dialog: Dialog
         }[]
     }
 };
@@ -178,18 +178,25 @@ export default new class DialogProvider extends Eventhandler {
                     dialog.childNodes[0].appendChild(document.createTextNode(providerOptions.title));
                 }
 
-                const renderedDialogContent = storedDialog.dialog.render(dialogProperties);
-                dialog.childNodes[1].appendChild(renderedDialogContent);
+                const renderDialog = (props:any) =>{
+                    const renderedDialogContent = storedDialog.dialog.render(props);
+                    // @ts-ignore
+                    dialog.childNodes[1].removeAllChilds();
+                    domInteraction.getRootNode().removeAllChilds();
 
-                domInteraction.getRootNode().appendChild(dialog);
+                    dialog.childNodes[1].appendChild(renderedDialogContent);
+                    domInteraction.getRootNode().appendChild(dialog);
+                    storedDialog.dialog.onRendered(renderedDialogContent);
+                }
 
-                storedDialog.dialog.onRendered(renderedDialogContent);
+                storedDialog.dialog.on('propsUpdated',renderDialog);
+                renderDialog(dialogProperties);
             }
         });
         return this;
     }
 
-    public register(dialog:IDialog, name:string=''){
+    public register(dialog:Dialog, name:string=''){
         if(name===''){name=dialog.getName();}
         let found = false;
         window._ceDialogStore.map(def=>{
