@@ -5,8 +5,8 @@
  * @author Christoph Ehlers <ce@construktiv.de> | Construktiv GmbH
  */
 import Eventhandler from "../handler/Eventhandler";
-import {createElement} from "../lib/dom";
 import Dialog from "../lib/Dialog";
+import {createElement} from "../lib/dom";
 /* tslint:disable */
 declare global {
     interface Window {
@@ -77,7 +77,8 @@ const domInteraction:{
 
 const renderDialogFooter = (props:{
     abortAble:boolean,
-    onAccept:CallableFunction
+    onAccept:CallableFunction,
+    additionalButtons:[]
 }) => {
     const element = createElement('div',{class:'dialog-footer'});
     const buttons = [{class:'button--accept', onClick:()=>{
@@ -91,9 +92,9 @@ const renderDialogFooter = (props:{
             },text:providerProps.textAbort});
     }
 
-    buttons.map(buttonDef=>{
+    [...buttons,...props.additionalButtons].map(buttonDef=>{
         element.appendChild(createElement('button',{
-            class:'button '+buttonDef.class,
+            class:'button '+buttonDef.class??'',
             innerText:buttonDef.text,
             onClick:buttonDef.onClick
         }));
@@ -168,21 +169,23 @@ export default new class DialogProvider extends Eventhandler {
                 const dialog = document.createElement('div');
                 dialog.setAttribute('class','dialog dialog--'+name.toLowerCase());
 
-                dialog.appendChilds([
-                    createElement('div',{class:'dialog-header'}),
-                    createElement('div',{class:'dialog-content'}),
-                    renderDialogFooter(providerOptions)
-                ]);
-
-                if(providerOptions.title){
-                    dialog.childNodes[0].appendChild(document.createTextNode(providerOptions.title));
-                }
-
                 const renderDialog = (props:any) =>{
                     const renderedDialogContent = storedDialog.dialog.render(props);
-                    // @ts-ignore
-                    dialog.childNodes[1].removeAllChilds();
+                    dialog.removeAllChilds();
                     domInteraction.getRootNode().removeAllChilds();
+
+                    dialog.appendChilds([
+                        createElement('div',{class:'dialog-header'}),
+                        createElement('div',{class:'dialog-content'}),
+                        renderDialogFooter({
+                            ...providerOptions,
+                            additionalButtons: storedDialog.dialog.getAdditionalFooterButtons()
+                        })
+                    ]);
+
+                    if(providerOptions.title){
+                        dialog.childNodes[0].appendChild(document.createTextNode(providerOptions.title));
+                    }
 
                     dialog.childNodes[1].appendChild(renderedDialogContent);
                     domInteraction.getRootNode().appendChild(dialog);

@@ -10,6 +10,7 @@ export interface IDialog {
     getDefaultProviderOptions:()=> {
         abortAble: boolean
     },
+    getAdditionalFooterButtons:()=>Array<{text:string, onClick:()=>void}>,
     getName:()=>string,
     onRendered:(element:HTMLElement)=>void,
     render:(props:any)=>HTMLElement,

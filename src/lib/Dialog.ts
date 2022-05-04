@@ -4,9 +4,8 @@
  *
  * @author Christoph Ehlers <ce@construktiv.de> | Construktiv GmbH
  */
-import {IDialog} from "../Interfaces/IDialog";
-import {createElement} from "./dom";
 import Eventhandler from "../handler/Eventhandler";
+import {IDialog} from "../Interfaces/IDialog";
 
 export default abstract class Dialog extends Eventhandler implements IDialog{
     protected name:string;
@@ -42,7 +41,11 @@ export default abstract class Dialog extends Eventhandler implements IDialog{
     public abstract reset():void;
     public abstract onRendered(element:HTMLElement):void;
 
-    updateProps(newProps: any): void {
+    public updateProps(newProps: any): void {
         this.dispatch('propsUpdated',newProps);
+    }
+
+    public getAdditionalFooterButtons(): Array<{text:string,onClick:()=>void}> {
+        return [];
     }
 }
