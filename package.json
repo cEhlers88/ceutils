@@ -1,6 +1,6 @@
 {
   "name": "@cehlers88/ceutils",
-  "version": "1.2.27",
+  "version": "1.2.28",
   "description": "my javascript utilities",
   "main": "build/index.js",
   "scripts": {

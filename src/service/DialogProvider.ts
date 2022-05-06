@@ -78,6 +78,7 @@ const domInteraction:{
 const renderDialogFooter = (props:{
     abortAble:boolean,
     onAccept:CallableFunction,
+    onAbort?:CallableFunction,
     additionalButtons:[]
 }) => {
     const element = createElement('div',{class:'dialog-footer'});
@@ -88,6 +89,7 @@ const renderDialogFooter = (props:{
 
     if(props.abortAble){
         buttons.push({class:'button--abort', onClick:()=>{
+                props.onAbort!();
                 domInteraction.disableRootNode();
             },text:providerProps.textAbort});
     }
@@ -134,11 +136,13 @@ export default new class DialogProvider extends Eventhandler {
         window._ceDialogStore.map(storedDialog=>{
             if(!found && storedDialog.name.toLowerCase() === name.toLowerCase()){
                 found = true;
+
                 const _onAccept = providerOptions.onAccept ? providerOptions.onAccept : ()=>null;
                 const _providerOptions = {
                     ...(storedDialog.dialog.getDefaultProviderOptions && typeof storedDialog.dialog.getDefaultProviderOptions ===  'function' ?
                         storedDialog.dialog.getDefaultProviderOptions() : {}),
                     ...providerOptions,
+                    onAbort:(providerOptions.onAbort ? providerOptions.onAbort : ()=>null),
                     onAccept:()=>{
                         const validation = storedDialog.dialog.validate();
 
