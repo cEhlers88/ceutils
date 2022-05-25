@@ -96,8 +96,8 @@ const functions = {
   {propName:'onChange',jsName:'change'},
   {propName:'onClick',jsName:'click'},
   {propName:'onFocus',jsName:'focus'},
-  {propName:'onKeyDown',jsName:'keyDown'},
-  {propName:'onKeyUp',jsName:'keyUp'},
+  {propName:'onKeyDown',jsName:'keydown'},
+  {propName:'onKeyUp',jsName:'keyup'},
   {propName:'onSubmit',jsName:'submit'},
 ].map((def:{propName:string,jsName:string})=>{
   config.magicProperties[def.propName] = (targetElement:HTMLElement, listener:any) => {

@@ -9,6 +9,7 @@ import {IDialog} from "../Interfaces/IDialog";
 
 export default abstract class Dialog extends Eventhandler implements IDialog{
     protected name:string;
+    protected props:any;
 
     constructor() {
         super();
@@ -33,16 +34,21 @@ export default abstract class Dialog extends Eventhandler implements IDialog{
         return {
             errorMessage: '',
             hadError: false,
+            props:this.props,
             reOpen: false
         }
     }
 
+    public doRender(props:any):HTMLElement {
+        this.props = props;
+        return this.render(props);
+    }
     public abstract render(props: any): HTMLElement ;
     public abstract reset():void;
     public abstract onRendered(element:HTMLElement):void;
 
     public updateProps(newProps: any): void {
-        this.dispatch('propsUpdated',newProps);
+        this.dispatch('propsUpdated', {newProps,oldProps:this.props});
     }
 
     public getAdditionalFooterButtons(): Array<{text:string,onClick:()=>void}> {

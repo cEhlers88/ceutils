@@ -79,19 +79,21 @@ const renderDialogFooter = (props:{
     abortAble:boolean,
     onAccept:CallableFunction,
     onAbort?:CallableFunction,
-    additionalButtons:[]
+    additionalButtons:[],
+    textAbort?:string,
+    textAccept?:string
 }) => {
     const element = createElement('div',{class:'dialog-footer'});
     const buttons = [{class:'button--accept', onClick:()=>{
             props.onAccept();
             domInteraction.disableRootNode();
-        },text:providerProps.textAccept}]
+        },text:props.textAccept ?? providerProps.textAccept}]
 
     if(props.abortAble){
         buttons.push({class:'button--abort', onClick:()=>{
                 props.onAbort!();
                 domInteraction.disableRootNode();
-            },text:providerProps.textAbort});
+            },text:props.textAbort ?? providerProps.textAbort});
     }
 
     [...buttons,...props.additionalButtons].map(buttonDef=>{
@@ -157,7 +159,7 @@ export default new class DialogProvider extends Eventhandler {
                                     onAccept: ()=>{
                                         if(validation.reOpen) {
                                             setTimeout(() => {
-                                                this.open(storedDialog.dialog.getName(),dialogProperties, providerOptions);
+                                                this.open(storedDialog.dialog.getName(),validation.props, providerOptions);
                                             }, 50);
                                         }
                                     }
@@ -174,7 +176,7 @@ export default new class DialogProvider extends Eventhandler {
                 dialog.setAttribute('class','dialog dialog--'+name.toLowerCase());
 
                 const renderDialog = (props:any) =>{
-                    const renderedDialogContent = storedDialog.dialog.render(props);
+                    const renderedDialogContent = storedDialog.dialog.doRender(props);
                     dialog.removeAllChilds();
                     domInteraction.getRootNode().removeAllChilds();
 
@@ -196,7 +198,12 @@ export default new class DialogProvider extends Eventhandler {
                     storedDialog.dialog.onRendered(renderedDialogContent);
                 }
 
-                storedDialog.dialog.on('propsUpdated',renderDialog);
+                storedDialog.dialog.on('propsUpdated', (props:{newProps:{}, oldProps:{}})=>{
+                    renderDialog({
+                        ...props.oldProps,
+                        ...props.newProps
+                    });
+                });
                 renderDialog(dialogProperties);
             }
         });
