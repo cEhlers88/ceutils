@@ -107,7 +107,7 @@ const functions = {
 
 const getParentWithClass= ( element:HTMLElement|any, className:string ) => {
   while (element.parentNode){
-    if(element.parentNode.classList.contains(className)){
+    if(element.parentNode.classList && element.parentNode.classList.contains(className)){
       return element.parentNode;
     }
     element = element.parentNode;
