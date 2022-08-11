@@ -95,12 +95,12 @@ export default class ComponentStarter {
           componentName,
           namespace
         );
-      } catch (e:any) {
+      } catch (e) {
         if (1 < String(e).indexOf("not a constructor")) {
           throw Error("Unknown Type");
         }
 
-        throw Error(e);
+        throw Error(String(e));
       }
     }
 

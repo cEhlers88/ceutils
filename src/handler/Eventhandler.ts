@@ -1,7 +1,7 @@
 import IEventListener from "../Interfaces/IEventListener";
 
 export default class {
-  public listeners: IEventListener[] = [];// private
+  public listeners: IEventListener[] = []; // private
 
   public addListener(eventName: string, listener: CallableFunction) {
     let eventListenerInfo = this.getEventListenerInfo(eventName);
@@ -16,7 +16,10 @@ export default class {
   public dispatch(eventName: string, props?: unknown) {
     const self = this;
     const eventListenerInfo = this.getEventListenerInfo(eventName);
-    if (-1 !== eventListenerInfo.index && this.listeners[eventListenerInfo.index]) {
+    if (
+      -1 !== eventListenerInfo.index &&
+      this.listeners[eventListenerInfo.index]
+    ) {
       this.listeners[eventListenerInfo.index].callbacks.map(
         (listener: CallableFunction) => {
           try {
@@ -52,7 +55,8 @@ export default class {
     }
   }
 
-  public getEventListenerInfo( // private
+  public getEventListenerInfo(
+    // private
     eventName: string
   ): { index: number; eventListener: IEventListener | undefined } {
     const result: {

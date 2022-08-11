@@ -12,11 +12,7 @@ export default class {
         }
         return this.getData(p);
       },
-      set(
-        target: any,
-        p: string | number | symbol,
-        value: any
-      ): boolean {
+      set(target: any, p: string | number | symbol, value: any): boolean {
         if (typeof target[p] !== "undefined") {
           return (target[p] = value);
         }

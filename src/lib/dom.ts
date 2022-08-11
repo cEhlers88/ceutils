@@ -1,28 +1,31 @@
-import {ICreateElementProperties} from "../Interfaces/ICreateElementProperties";
-import {IMagicProperties} from "../Interfaces/IMagicProperties";
+import { ICreateElementProperties } from "../Interfaces/ICreateElementProperties";
+import { IMagicProperties } from "../Interfaces/IMagicProperties";
 /* tslint:disable */
 declare global {
   interface HTMLElement {
-    appendChilds: CallableFunction,
-    createChild: CallableFunction,
-    getParentWithClass: CallableFunction,
-    removeAllChilds: CallableFunction,
+    appendChilds: CallableFunction;
+    createChild: CallableFunction;
+    getParentWithClass: CallableFunction;
+    removeAllChilds: CallableFunction;
   }
 }
 /* tslint:enable */
 
-const config:{
+const config: {
   magicProperties: IMagicProperties & {
-    [name:string]:any
-  }
+    [name: string]: any;
+  };
 } = {
   magicProperties: {
-    childNodes: (targetElement: HTMLElement, children: HTMLElement[]|Text[]) => {
+    childNodes: (
+      targetElement: HTMLElement,
+      children: HTMLElement[] | Text[]
+    ) => {
       functions.appendChilds(targetElement, children);
     },
-    data: (targetElement: HTMLElement, value: {[name:string]:string}) => {
-      for(const key in value){
-        if(value.hasOwnProperty(key)){
+    data: (targetElement: HTMLElement, value: { [name: string]: string }) => {
+      for (const key in value) {
+        if (value.hasOwnProperty(key)) {
           targetElement.dataset[key] = value[key];
         }
       }
@@ -34,19 +37,25 @@ const config:{
 };
 
 const functions = {
-  appendChilds: (targetElement: HTMLElement, childs: HTMLElement|Text|HTMLElement[]|Text[]):HTMLElement => {
+  appendChilds: (
+    targetElement: HTMLElement,
+    childs: HTMLElement | Text | HTMLElement[] | Text[]
+  ): HTMLElement => {
     if (Array.isArray(childs)) {
-      childs.map((childElement: HTMLElement|Text, index: number) => {
+      childs.map((childElement: HTMLElement | Text, index: number) => {
         functions.appendChilds(targetElement, childElement);
       });
     } else {
-      if(childs instanceof HTMLElement || childs instanceof Text){
+      if (childs instanceof HTMLElement || childs instanceof Text) {
         targetElement.appendChild(childs);
       }
     }
     return targetElement;
   },
-  createElement: (tagname: string, properties?: ICreateElementProperties):HTMLElement => {
+  createElement: (
+    tagname: string,
+    properties?: ICreateElementProperties
+  ): HTMLElement => {
     const resultElement = document.createElement(tagname);
     if (properties) {
       for (const name in properties) {
@@ -61,12 +70,14 @@ const functions = {
 
     return resultElement;
   },
-  getElement: (elementNeedle: string):
-      Element|
-      HTMLElement|
-      HTMLCollectionOf<Element>|
-      NodeListOf<Element>|
-      null => {
+  getElement: (
+    elementNeedle: string
+  ):
+    | Element
+    | HTMLElement
+    | HTMLCollectionOf<Element>
+    | NodeListOf<Element>
+    | null => {
     switch (elementNeedle.charAt(0)) {
       case ".":
         return document.getElementsByClassName(elementNeedle.substr(1));
@@ -92,51 +103,64 @@ const functions = {
 };
 
 [
-  {propName:'onBlur',jsName:'blur'},
-  {propName:'onChange',jsName:'change'},
-  {propName:'onClick',jsName:'click'},
-  {propName:'onFocus',jsName:'focus'},
-  {propName:'onKeyDown',jsName:'keydown'},
-  {propName:'onKeyUp',jsName:'keyup'},
-  {propName:'onSubmit',jsName:'submit'},
-].map((def:{propName:string,jsName:string})=>{
-  config.magicProperties[def.propName] = (targetElement:HTMLElement, listener:any) => {
-    targetElement.addEventListener(def.jsName,listener);
-  }
+  { propName: "onBlur", jsName: "blur" },
+  { propName: "onChange", jsName: "change" },
+  { propName: "onClick", jsName: "click" },
+  { propName: "onFocus", jsName: "focus" },
+  { propName: "onKeyDown", jsName: "keydown" },
+  { propName: "onKeyUp", jsName: "keyup" },
+  { propName: "onSubmit", jsName: "submit" }
+].map((def: { propName: string; jsName: string }) => {
+  config.magicProperties[def.propName] = (
+    targetElement: HTMLElement,
+    listener: any
+  ) => {
+    targetElement.addEventListener(def.jsName, listener);
+  };
 });
 
-const getParentWithClass= ( element:HTMLElement|any, className:string ) => {
-  while (element.parentNode){
-    if(element.parentNode.classList && element.parentNode.classList.contains(className)){
+const getParentWithClass = (element: HTMLElement | any, className: string) => {
+  while (element.parentNode) {
+    if (
+      element.parentNode.classList &&
+      element.parentNode.classList.contains(className)
+    ) {
       return element.parentNode;
     }
     element = element.parentNode;
   }
   return false;
-}
+};
 
-const removeAllChilds = (targetElement: HTMLElement):HTMLElement => {
+const removeAllChilds = (targetElement: HTMLElement): HTMLElement => {
   while (targetElement.firstChild) {
     targetElement.removeChild(targetElement.firstChild);
   }
   return targetElement;
 };
 
-HTMLElement.prototype.appendChilds = function(childs: HTMLElement|HTMLElement[]):HTMLElement {
-  return functions.appendChilds(this,childs);
-}
-HTMLElement.prototype.createChild = function(tagName:string, properties?: any):HTMLElement{
-  return functions.appendChilds(this,createElement(tagName,properties));
-}
-HTMLElement.prototype.getParentWithClass = function(className:string):HTMLElement{
-  return getParentWithClass(this,className);
-}
-HTMLElement.prototype.removeAllChilds = function():HTMLElement{
+HTMLElement.prototype.appendChilds = function(
+  childs: HTMLElement | HTMLElement[]
+): HTMLElement {
+  return functions.appendChilds(this, childs);
+};
+HTMLElement.prototype.createChild = function(
+  tagName: string,
+  properties?: any
+): HTMLElement {
+  return functions.appendChilds(this, createElement(tagName, properties));
+};
+HTMLElement.prototype.getParentWithClass = function(
+  className: string
+): HTMLElement {
+  return getParentWithClass(this, className);
+};
+HTMLElement.prototype.removeAllChilds = function(): HTMLElement {
   return removeAllChilds(this);
-}
+};
 
 export default {
-  appendChilds:functions.appendChilds,
+  appendChilds: functions.appendChilds,
   createElement: functions.createElement,
   getElement: functions.getElement,
   getParentWithClass,
