@@ -5,7 +5,8 @@
  * @author Christoph Ehlers <ce@construktiv.de> | Construktiv GmbH
  */
 export interface IMagicProperties {
-  childNodes?: (targetElement: HTMLElement, children: HTMLElement[]) => HTMLElement[];
+  childNodes?: any | ((targetElement: HTMLElement, children: HTMLElement[] | SVGSVGElement[]) => void)
+    | HTMLElement[] | SVGSVGElement[];
   innerText?: ((targetElement: HTMLElement, value: string) => void) | string;
   onBlur?: (targetElement: HTMLElement, listener: CallableFunction) => void;
   onChange?: (targetElement: HTMLElement, listener: CallableFunction) => void;
@@ -14,4 +15,22 @@ export interface IMagicProperties {
   onKeyDown?: (targetElement: HTMLElement, listener: CallableFunction) => void;
   onKeyUp?: (targetElement: HTMLElement, listener: CallableFunction) => void;
   onSubmit?: (targetElement: HTMLElement, listener: CallableFunction) => void;
+  onLoad?: (targetElement: HTMLElement, listener: CallableFunction) => void;
+  onMouseOver?: (
+    targetElement: HTMLElement,
+    listener: CallableFunction
+  ) => void;
+  onMouseDown?: (
+    targetElement: HTMLElement,
+    listener: CallableFunction
+  ) => void;
+  onMouseEnter?: (
+      targetElement: HTMLElement,
+      listener: CallableFunction
+  ) => void;
+  onMouseLeave?: (
+      targetElement: HTMLElement,
+      listener: CallableFunction
+  ) => void;
+  onMouseUp?: (targetElement: HTMLElement, listener: CallableFunction) => void;
 }

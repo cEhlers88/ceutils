@@ -1,9 +1,11 @@
 import { IDataEntry } from "../Interfaces";
+import Eventhandler from "./Eventhandler";
 
-export default class {
+export default class extends Eventhandler {
   private data: IDataEntry[] = [];
-
+  private _addCurrentlyMultipleData: boolean = false;
   constructor() {
+    super();
     const self = this;
     return new Proxy(this, {
       get: (target: any, p: any) => {
@@ -54,15 +56,25 @@ export default class {
   public setData(key: string, value: any) {
     const index: number | undefined = this.getDataIndex(key);
     if (index !== undefined) {
+      const oldValue = this.data[index].value;
       this.data[index].value = value;
+      if(value !== oldValue){
+        this.dispatch("dataChanged", { key, value, oldValue });
+      }
     } else {
       this.data.push({ key, value });
+      this.dispatch("dataChanged", { key, value, oldValue:null });
     }
+    this.dispatch('set_'+key, value);
+
     return this;
   }
   public setMultipleData(data: any) {
+    const eventProps:Array<{key: string, value:any}> = [];
     for (const name of Object.keys(data)) {
       this.setData(name, data[name]);
+      eventProps.push({ key: name, value: data[name] });
     }
+    this.dispatch("dataChanged", eventProps);
   }
 }

@@ -2,7 +2,7 @@
  * Library DialogProvider
  * Created 21.03.22
  *
- * @author Christoph Ehlers <ce@construktiv.de> | Construktiv GmbH
+ * @author Christoph Ehlers <Christoph.Ehlers1988@gmx.de>
  */
 import Eventhandler from "../handler/Eventhandler";
 import Dialog from "../lib/Dialog";

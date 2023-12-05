@@ -1,5 +1,9 @@
 dist/
 node_modules/
 .idea/
+src/.DS_Store
+src/.DS_Store/
+./src/.DS_Store
+./src/.DS_Store/
 
 index.js

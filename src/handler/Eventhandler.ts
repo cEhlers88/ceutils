@@ -12,6 +12,7 @@ export default class {
     }
 
     this.listeners[eventListenerInfo.index].callbacks.push(listener);
+    return this;
   }
   public dispatch(eventName: string, props?: unknown) {
     const self = this;
@@ -30,7 +31,11 @@ export default class {
         }
       );
     } else {
-      this.handleError({ message: "Event " + eventName + " not found." });
+      if(eventName==='error'){
+        throw new Error("Unhandled error: "+JSON.stringify(props));
+      }else{
+        this.handleError({ message: "Event " + eventName + " not found." });
+      }
     }
   }
   public getListeners(eventName: string): CallableFunction[] {
