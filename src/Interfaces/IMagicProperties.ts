@@ -2,7 +2,7 @@
  * Interface IMagicProperties
  * Created 13.12.21
  *
- * @author Christoph Ehlers <ce@construktiv.de> | Construktiv GmbH
+ * @author Christoph Ehlers <webmaster@c-ehlers.de>
  */
 export interface IMagicProperties {
   childNodes?: any | ((targetElement: HTMLElement, children: HTMLElement[] | SVGSVGElement[]) => void)
@@ -16,21 +16,11 @@ export interface IMagicProperties {
   onKeyUp?: (targetElement: HTMLElement, listener: CallableFunction) => void;
   onSubmit?: (targetElement: HTMLElement, listener: CallableFunction) => void;
   onLoad?: (targetElement: HTMLElement, listener: CallableFunction) => void;
-  onMouseOver?: (
-    targetElement: HTMLElement,
-    listener: CallableFunction
-  ) => void;
-  onMouseDown?: (
-    targetElement: HTMLElement,
-    listener: CallableFunction
-  ) => void;
-  onMouseEnter?: (
-      targetElement: HTMLElement,
-      listener: CallableFunction
-  ) => void;
-  onMouseLeave?: (
-      targetElement: HTMLElement,
-      listener: CallableFunction
-  ) => void;
+  onMouseOver?: (targetElement: HTMLElement, listener: CallableFunction) => void;
+  onMouseDown?: (targetElement: HTMLElement, listener: CallableFunction) => void;
+  onMouseEnter?: (targetElement: HTMLElement, listener: CallableFunction) => void;
+  onMouseLeave?: (targetElement: HTMLElement, listener: CallableFunction) => void;
   onMouseUp?: (targetElement: HTMLElement, listener: CallableFunction) => void;
+  onMouseMove?: (targetElement: HTMLElement, listener: CallableFunction) => void;
+  onMouseOut?: (targetElement: HTMLElement, listener: CallableFunction) => void;
 }

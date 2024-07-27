@@ -2,7 +2,7 @@
  * Interface ICreateElementProperties
  * Created 13.12.21
  *
- * @author Christoph Ehlers <Christoph.Ehlers1988@gmx.de>
+ * @author Christoph Ehlers <webmaster@c-ehlers.de>
  */
 import { IMagicProperties } from "./IMagicProperties";
 

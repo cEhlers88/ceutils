@@ -6,9 +6,9 @@ declare global {
     interface HTMLElement {
         appendChilds: (childs: HTMLElement | HTMLElement[] | SVGSVGElement | SVGSVGElement[])=> HTMLElement;
         createChild: (tagName: string, properties?: any) => HTMLElement;
-        getParentByCondition: (condition:()=>boolean)=>HTMLElement|undefined;
-        getParentWithClass: CallableFunction;
-        removeAllChilds: CallableFunction;
+        getParentByCondition: (condition:(element:HTMLElement)=>boolean)=>HTMLElement|undefined;
+        getParentWithClass: (className: string) => HTMLElement | undefined;
+        removeAllChilds: ()=>HTMLElement;
     }
 }
 /* tslint:enable */
@@ -119,10 +119,12 @@ const domFunctions = {
     {propName: "onKeyUp", jsName: "keyup"},
     {propName: "onSubmit", jsName: "submit"},
     {propName: "onMouseOver", jsName: "mouseover"},
+    {propName: "onMouseOut", jsName: "mouseout"},
     {propName: "onMouseDown", jsName: "mousedown"},
     {propName: "onMouseUp", jsName: "mouseup"},
     {propName: "onMouseEnter", jsName: "mouseenter"},
     {propName: "onMouseLeave", jsName: "mouseleave"},
+    {propName: "onMouseMove", jsName: "mousemove"},
     {propName: "onLoad", jsName: "load"}
 ].map((def: { propName: string; jsName: string }) => {
     config.magicProperties[def.propName] = (

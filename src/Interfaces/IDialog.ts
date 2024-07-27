@@ -2,7 +2,7 @@
  * Interface IDialog
  * Created 21.03.22
  *
- * @author Christoph Ehlers <ce@construktiv.de> | Construktiv GmbH
+ * @author Christoph Ehlers <webmaster@c-ehlers.de>
  */
 export interface IDialog {
   reset: () => void;
