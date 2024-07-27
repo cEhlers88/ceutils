@@ -1,14 +1,15 @@
 import { IDataEntry } from "../Interfaces";
 import Eventhandler from "./Eventhandler";
 
-export default class extends Eventhandler {
+export default class Datahandler extends Eventhandler {
+  public static KEY_ALL: string = "_all";
   private data: IDataEntry[] = [];
   private _addCurrentlyMultipleData: boolean = false;
   constructor() {
     super();
     const self = this;
     return new Proxy(this, {
-      get: (target: any, p: any) => {
+      get:(target: any, p: any) => {
         if (typeof target[p] !== "undefined") {
           return target[p];
         }
@@ -24,6 +25,7 @@ export default class extends Eventhandler {
     });
   }
   public clearData(): void {
+    this.dispatch("dataChanged", { key: Datahandler.KEY_ALL , value: null, oldValue: null });
     this.data = [];
   }
   public getAll(): IDataEntry[] {
@@ -52,6 +54,15 @@ export default class extends Eventhandler {
       }
     }
     return result;
+  }
+  public removeData(key: string) {
+    const index: number | undefined = this.getDataIndex(key);
+    if (index !== undefined) {
+      const oldValue = this.data[index].value;
+      this.data.splice(index, 1);
+      this.dispatch("dataChanged", { key, value: undefined, oldValue});
+    }
+    return this;
   }
   public setData(key: string, value: any) {
     const index: number | undefined = this.getDataIndex(key);
