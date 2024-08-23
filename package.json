@@ -4,8 +4,8 @@
   "description": "JavaScript utilities by Christoph Ehlers",
   "main": "build/index.js",
   "scripts": {
-    "build": "tsc && npm run minify && npm run build:styles",
-    "build:styles": "",
+    "build": "tsc && npm run minify",
+    "build:styles": "sass ./src/styles/Dialog.scss ./dist/styles/Dialog.css --output-style compressed",
     "test": "jest --config jestconfig.json",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
     "lint": "tslint -p tsconfig.json",
@@ -56,6 +56,7 @@
   "types": "build/index.d.ts",
   "dependencies": {
     "@types/react-dom": "^16.9.14",
+    "core-js": "^3.38.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   }

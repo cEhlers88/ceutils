@@ -1,5 +1,29 @@
-# !Work in progress!
-# CEUTILS
+# CEUTILS - 23.08.2024
+
+## CachedDataProvider
+"CachedDataProvider" reduces the number of API calls by caching the data and retrieving it from the cache when needed. 
+Each instance of a CachedDataProvider object has its own cache that can be manually cleared.
+
+### Usage 
+```javascript
+// Create a new instance of CachedDataProvider
+import CachedDataProvider from "@cehlers88/ceutils/build/Provider/CachedDataProvider";
+const dataProvider = new CachedDataProvider();
+
+// Using the dataProvider to fetch data
+dataProvider.fetch({
+  url: "https://xyz.net",
+  evalJson: true, // Optional
+  method: "GET", // Optional
+  data: { // Optional
+  }
+}).then(v=>{
+    // handle response data
+});
+
+// Clear the cache
+dataProvider.clearCache();
+```
 
 ## ComponentStarter
 
