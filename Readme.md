@@ -147,11 +147,11 @@ Returns the element(s) that match(es) the specified selector.
 Example:
 ```javascript
 // Returns the element with the ID "myDiv"
-const element_Example01 = domLib.getElement("myDiv"); // means: Element.getElementById("myDiv")
-const element_Example02 = domLib.getElement("#myDiv"); // means: Element.getElementById("myDiv") too
-const element_Example03 = domLib.getElement(".myDiv"); // means: Element.getElementsByClassName("myDiv")
-const element_Example04 = domLib.getElement("?.myDiv"); // means: Element.querySelector(".myDiv")
-const element_Example05 = domLib.getElement("?*.myDiv"); // means: Element.querySelectorAll(".myDiv")
+const element_Example01 = domLib.getElement("myDiv"); // means: document.getElementById("myDiv")
+const element_Example02 = domLib.getElement("#myDiv"); // means: document.getElementById("myDiv") too
+const element_Example03 = domLib.getElement(".myDiv"); // means: document.getElementsByClassName("myDiv")
+const element_Example04 = domLib.getElement("?.myDiv"); // means: document.querySelector(".myDiv")
+const element_Example05 = domLib.getElement("?*.myDiv"); // means: document.querySelectorAll(".myDiv")
 
 ```
 

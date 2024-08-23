@@ -1,7 +1,7 @@
 {
   "name": "@cehlers88/ceutils",
-  "version": "1.2.65",
-  "description": "JavaScript utilities by Christoph Ehlers",
+  "version": "1.2.66",
+  "description": "JavaScript utilities for DOM manipulation such as creating, appending, removing, replacing elements and more.",
   "main": "build/index.js",
   "scripts": {
     "build": "tsc && npm run minify",
@@ -21,9 +21,14 @@
     "url": "git+https://github.com/cEhlers88/ceutils.git"
   },
   "keywords": [
-    "utilities"
+    "utilities",
+    "dom",
+    "react",
+    "library",
+    "element",
+    "node"
   ],
-  "author": "Christoph Ehlers <Christoph.Ehlers1988@gmx.de>",
+  "author": "Christoph Ehlers <webmaster@c-ehlers.de>",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/cEhlers88/ceutils/issues"
