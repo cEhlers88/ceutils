@@ -8,6 +8,7 @@ export interface IMagicProperties {
   childNodes?: any | ((targetElement: HTMLElement, children: HTMLElement[] | SVGSVGElement[]) => void)
     | HTMLElement[] | SVGSVGElement[];
   innerText?: ((targetElement: HTMLElement, value: string) => void) | string;
+  data?: ((targetElement: HTMLElement, value: { [name: string]: string }) => void) | { [name: string]: string };
   onBlur?: (targetElement: HTMLElement, listener: CallableFunction) => void;
   onChange?: (targetElement: HTMLElement, listener: CallableFunction) => void;
   onClick?: (targetElement: HTMLElement, listener: CallableFunction) => void;

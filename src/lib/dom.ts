@@ -139,7 +139,7 @@ const _extendHtmlElementPrototype = () => {
         return domFunctions.appendChilds(this, childs);
     };
     HTMLElement.prototype.createChild = function (tagName, properties={}): HTMLElement {
-        return domFunctions.appendChilds(this, createElement(tagName, properties));
+        return this.appendChild(createElement(tagName, properties));
     };
     HTMLElement.prototype.getParentByCondition = function (condition){
         return getParentByCondition(this, condition);
