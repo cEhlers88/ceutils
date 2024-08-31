@@ -37,7 +37,7 @@ export default class CachedDataProvider {
             this._pendingRequests[pendingRequestInfo.index].callbacks.resolve.push(resolve);
             this._pendingRequests[pendingRequestInfo.index].callbacks.reject.push(reject);
 
-            if(pendingRequestInfo.state === 'loading'){
+            if(this._pendingRequests[pendingRequestInfo.index].state === 'loading'){
                 this._pendingRequests[pendingRequestInfo.index].state = 'pending';
                 fetch(fetchOptions.url)
                     .then((response) => {
