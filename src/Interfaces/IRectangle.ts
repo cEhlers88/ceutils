@@ -6,7 +6,7 @@
  */
 import IVector2D from "./IVector2D";
 
-export default interface IRectangle extends IVector2D{
+export default interface IRectangle extends IVector2D {
     color?:string|number;
     height: number;
     highlightColor?:string|number;

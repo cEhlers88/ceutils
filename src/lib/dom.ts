@@ -1,4 +1,3 @@
-import {DOMElement} from "react";
 import {ICreateElementProperties} from "../Interfaces/ICreateElementProperties";
 import {IMagicProperties} from "../Interfaces/IMagicProperties";
 /* tslint:disable */

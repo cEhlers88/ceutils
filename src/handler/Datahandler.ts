@@ -1,4 +1,4 @@
-import { IDataEntry } from "../Interfaces";
+import {IDataEntry} from "../Interfaces";
 import Eventhandler from "./Eventhandler";
 
 export default class Datahandler extends Eventhandler {
