@@ -4,22 +4,22 @@
     "target": "esnext",
     "sourceMap": true,
     "declaration": true,
-    "outDir": "./dist/",
-    "rootDir": "src",
+    "outDir": "./dist",
     "skipLibCheck": true,
     "strict": true,
     "isolatedModules": false,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "jsx": "react",
-    "allowJs": true,
     "moduleResolution": "node",
   },
   "include": [
-    "src"
+    "src",
+    "global.d.ts"
   ],
   "exclude": [
     "node_modules",
+    "**/doc/*",
     "**/__root__/*",
     "**/__tests__/*"
   ]

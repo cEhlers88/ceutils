@@ -1,5 +1,6 @@
 import DataHndl from "./handler/Datahandler";
 import EventHndl from "./handler/Eventhandler";
+import { IHtmlElementExtensions } from "./Interfaces/IHtmlElementExtensions";
 import canvas from "./lib/canvas";
 import _createStore from "./lib/createStore";
 import dom from "./lib/dom";
@@ -23,3 +24,8 @@ export const canvasLib = canvas;
 export const domLib = dom;
 export const Eventhandler = EventHndl;
 export const ObjectStoreProvider = ObjectStoreProviderClass;
+
+declare global {
+    // tslint:disable-next-line:interface-name no-empty-interface
+    interface HTMLElement extends IHtmlElementExtensions {}
+}

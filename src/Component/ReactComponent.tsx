@@ -1,5 +1,5 @@
 import React from "react";
-import IComponentService from "../Interfaces/componentService";
+import IComponentService from "../Interfaces/IComponentService";
 
 export default abstract class ReactComponent extends React.Component{
     public state:{services:any} = {services:[]};

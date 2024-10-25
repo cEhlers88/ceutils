@@ -12,6 +12,12 @@ export interface IMagicProperties {
   onBlur?: (targetElement: HTMLElement, listener: CallableFunction) => void;
   onChange?: (targetElement: HTMLElement, listener: CallableFunction) => void;
   onClick?: (targetElement: HTMLElement, listener: CallableFunction) => void;
+  onDragStart?: (targetElement: HTMLElement, listener: CallableFunction) => void;
+  onDragEnd?: (targetElement: HTMLElement, listener: CallableFunction) => void;
+  onDragOver?: (targetElement: HTMLElement, listener: CallableFunction) => void;
+  onDragEnter?: (targetElement: HTMLElement, listener: CallableFunction) => void;
+  onDragLeave?: (targetElement: HTMLElement, listener: CallableFunction) => void;
+  onDrop?: (targetElement: HTMLElement, listener: CallableFunction) => void;
   onFocus?: (targetElement: HTMLElement, listener: CallableFunction) => void;
   onKeyDown?: (targetElement: HTMLElement, listener: CallableFunction) => void;
   onKeyUp?: (targetElement: HTMLElement, listener: CallableFunction) => void;

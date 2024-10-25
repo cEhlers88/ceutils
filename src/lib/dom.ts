@@ -1,16 +1,5 @@
 import {ICreateElementProperties} from "../Interfaces/ICreateElementProperties";
 import {IMagicProperties} from "../Interfaces/IMagicProperties";
-/* tslint:disable */
-declare global {
-    interface HTMLElement {
-        appendChilds: (childs: HTMLElement | HTMLElement[] | SVGSVGElement | SVGSVGElement[])=> HTMLElement;
-        createChild: (tagName: string, properties?: any) => HTMLElement;
-        getParentByCondition: (condition:(element:HTMLElement)=>boolean)=>HTMLElement|undefined;
-        getParentWithClass: (className: string) => HTMLElement | undefined;
-        removeAllChilds: ()=>HTMLElement;
-    }
-}
-/* tslint:enable */
 
 const config: {
     magicProperties: IMagicProperties & {
@@ -74,7 +63,7 @@ const domFunctions = {
     getElement: (
         elementNeedle: string
     ):
-        | Element
+        Element
         | HTMLElement
         | HTMLCollectionOf<Element>
         | NodeListOf<Element>
@@ -113,6 +102,12 @@ const domFunctions = {
     {propName: "onBlur", jsName: "blur"},
     {propName: "onChange", jsName: "change"},
     {propName: "onClick", jsName: "click"},
+    {propName: "onDragStart", jsName: "dragstart"},
+    {propName: "onDragEnd", jsName: "dragend"},
+    {propName: "onDragOver", jsName: "dragover"},
+    {propName: "onDragEnter", jsName: "dragenter"},
+    {propName: "onDragLeave", jsName: "dragleave"},
+    {propName: "onDrop", jsName: "drop"},
     {propName: "onFocus", jsName: "focus"},
     {propName: "onKeyDown", jsName: "keydown"},
     {propName: "onKeyUp", jsName: "keyup"},
