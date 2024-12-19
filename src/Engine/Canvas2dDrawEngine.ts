@@ -297,11 +297,6 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
         this._handleMethodEnd('setUnit', undefined);
         return this;
     }
-    public startAnalyse(callback: (reason:string, props:any)=>void): IDrawEngine {
-        this._mode = eDrawEngineMode.analytic;
-        this._analyticStore.callback = callback;
-        return this;
-    }
     /**
      * Draws a circle on the canvas.
      *
@@ -314,6 +309,7 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
     public circle(position:IVector2D, radius:number, strokeStyle:number|string=-1, fillStyle:number|string=-1): IDrawEngine{
         this._handleMethodStart('circle', {position, radius, strokeStyle, fillStyle, _propsOrder:['position', 'radius', 'strokeStyle', 'fillStyle']});
         if(!this._drawCondition){return this;}
+        position = this._convertToAbsolutePixels(position);
         this.ctx!.beginPath();
         this.ctx!.arc(position.x, position.y, radius, 0, Math.PI * 2);
         this.ctx!.closePath();
@@ -332,6 +328,11 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
         this._handleMethodEnd('circle', undefined);
         return this;
     }
+    public startAnalyse(callback: (reason:string, props:any)=>void): IDrawEngine {
+        this._mode = eDrawEngineMode.analytic;
+        this._analyticStore.callback = callback;
+        return this;
+    }
     /**
      * Draws a donut shape on the canvas.
      *
@@ -346,6 +347,7 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
         this._handleMethodStart('donut', {position, outerRadius, innerRadius, strokeStyle, fillStyle, _propsOrder:['position', 'outerRadius', 'innerRadius', 'strokeStyle', 'fillStyle']});
         if(!this._drawCondition){return this;}
         this.ctx!.beginPath();
+        position = this._convertToAbsolutePixels(position);
         this.ctx!.arc(position.x, position.y, outerRadius, 0, 2 * Math.PI);
         this.ctx!.arc(position.x, position.y, innerRadius, 0, 2 * Math.PI, true);
         if(fillStyle!==-1){
@@ -374,6 +376,8 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
      */
     public gradientLines(start: IVector2D, destinations: IVector2D[], colors: Array<IColor | string | number>, width: number = 1): IDrawEngine {
         this._handleMethodStart('gradientLines', {start, destinations, colors, width, _propsOrder:['start', 'destinations', 'colors', 'width']});
+        start = this._convertToAbsolutePixels(start);
+        destinations = destinations.map(d=>this._convertToAbsolutePixels(d));
         const ctx = this.ctx!;
         // Gesamtlänge des Pfades berechnen
         let totalLength = 0;
@@ -473,6 +477,8 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
     public hexagon(position:IVector2D, radius:number, strokeStyle:number|string=-1, fillStyle:number|string=-1, angle:number=0): IDrawEngine {
         this._handleMethodStart('hexagon', {position, radius, strokeStyle, fillStyle, angle, _propsOrder:['position', 'radius', 'strokeStyle', 'fillStyle', 'angle']});
         if(!this._drawCondition){return this;}
+        position = this._convertToAbsolutePixels(position);
+        radius = this._convertToAbsolutePixels(radius);
         this.ctx!.save(); // save the current state before rotation
         this.ctx!.translate(position.x, position.y); // translate the context to the center of the hexagon
         this.ctx!.rotate(angle * Math.PI / 180); // rotate the context by the given angle
@@ -521,6 +527,8 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
     public lines(startPosition:IVector2D, destinations:IVector2D[], strokeStyle:number|string=-1, fillStyle:number|string=-1, lineWidth:number=.5): IDrawEngine {
         this._handleMethodStart('lines', {startPosition, destinations, strokeStyle, fillStyle, lineWidth, _propsOrder:['startPosition', 'destinations', 'strokeStyle', 'fillStyle', 'lineWidth']});
         if(!this._drawCondition){return this;}
+        startPosition = this._convertToAbsolutePixels(startPosition);
+        destinations = destinations.map(d=>this._convertToAbsolutePixels(d));
         this.ctx!.beginPath();
         this.ctx!.lineWidth = lineWidth;
         this.ctx!.moveTo(startPosition.x,startPosition.y);
@@ -553,6 +561,7 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
     public moveTo(position:IVector2D): IDrawEngine {
         this._handleMethodStart('moveTo', {position, _propsOrder:['position']});
         if(!this._drawCondition){return this;}
+        position = this._convertToAbsolutePixels(position);
         this.ctx!.moveTo(position.x,position.y);
         this._handleMethodEnd('moveTo', undefined);
         return this;
@@ -568,6 +577,8 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
     public quadraticCurveTo(controlPoint:IVector2D, position:IVector2D): IDrawEngine {
         this._handleMethodStart('quadraticCurveTo', {controlPoint, position, _propsOrder:['controlPoint', 'position']});
         if(!this._drawCondition){return this;}
+        controlPoint = this._convertToAbsolutePixels(controlPoint);
+        position = this._convertToAbsolutePixels(position);
         this.ctx!.quadraticCurveTo(controlPoint.x, controlPoint.y, position.x, position.y);
         this._handleMethodEnd('quadraticCurveTo', undefined);
         return this;
@@ -641,6 +652,9 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
             radius = 5;
         }
 
+        rect = this._convertToAbsolutePixels(rect);
+        radius = this._convertToAbsolutePixels(radius);
+
         this.ctx!.beginPath();
         this.selectRoundRect(rect, radius);
         this.ctx!.closePath();
@@ -683,15 +697,17 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
         this._handleMethodStart('image', {image, sourceRect, destinationRect, angle, pivot, _propsOrder:['image', 'sourceRect', 'destinationRect', 'angle', 'pivot']});
         if(!this._drawCondition){return this;}
         if(destinationRect===undefined){destinationRect=sourceRect;}
+        destinationRect = this._convertToAbsolutePixels(destinationRect);
+
         this.ctx!.save();
-        this.ctx!.translate(destinationRect.x+(destinationRect.width*pivot.x), destinationRect.y+(destinationRect.height*pivot.y));
+        this.ctx!.translate(destinationRect!.x+(destinationRect!.width*pivot.x), destinationRect!.y+(destinationRect!.height*pivot.y));
         this.ctx!.rotate(angle * Math.PI / 180);
-        this.ctx!.translate(-destinationRect.x-(destinationRect.width*pivot.x), -destinationRect.y-(destinationRect.height*pivot.y));
+        this.ctx!.translate(-destinationRect!.x-(destinationRect!.width*pivot.x), -destinationRect!.y-(destinationRect!.height*pivot.y));
 
         this.ctx!.drawImage(
             image,
             sourceRect.x,sourceRect.y,sourceRect.width,sourceRect.height,
-            destinationRect.x,destinationRect.y,destinationRect.width,destinationRect.height
+            destinationRect!.x,destinationRect!.y,destinationRect!.width,destinationRect!.height
         );
 
         this.ctx!.restore();
@@ -719,6 +735,8 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
     },text:string, color:number|string=-1, font:string=''):IDrawEngine {
         this._handleMethodStart('text', {dim, text, color, font, _propsOrder:['dim', 'text', 'color', 'font']});
         if(!this._drawCondition){return this;}
+        dim = this._convertToAbsolutePixels(dim);
+
         const resetFillStyle = this.ctx!.fillStyle;
         if(color!==-1){
             this.ctx!.fillStyle = color.toString();
@@ -740,22 +758,27 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
     }
 
     private _convertToAbsolutePixels(objectToCalculate:any):any {
-        if(objectToCalculate.hasOwnProperty('x')){
-            objectToCalculate.x = objectToCalculate.x * this._positionUnitMultiplicator().x;
+        if(typeof objectToCalculate === 'number'){
+            objectToCalculate = objectToCalculate * this._positionUnitMultiplicator().x;
+        }else{
+            if(objectToCalculate.hasOwnProperty('x')){
+                objectToCalculate.x = objectToCalculate.x * this._positionUnitMultiplicator(objectToCalculate.hasOwnProperty('positionUnit') ? objectToCalculate.positionUnit : undefined).x;
+            }
+            if(objectToCalculate.hasOwnProperty('y')){
+                objectToCalculate.y = objectToCalculate.y * this._positionUnitMultiplicator(objectToCalculate.hasOwnProperty('positionUnit') ? objectToCalculate.positionUnit : undefined).y;
+            }
+            if(objectToCalculate.hasOwnProperty('width')){
+                objectToCalculate.width = objectToCalculate.width * this._positionUnitMultiplicator(objectToCalculate.hasOwnProperty('positionUnit') ? objectToCalculate.positionUnit : undefined).x;
+            }
+            if(objectToCalculate.hasOwnProperty('height')){
+                objectToCalculate.height = objectToCalculate.height * this._positionUnitMultiplicator(objectToCalculate.hasOwnProperty('positionUnit') ? objectToCalculate.positionUnit : undefined).y;
+            }
         }
-        if(objectToCalculate.hasOwnProperty('y')){
-            objectToCalculate.y = objectToCalculate.y * this._positionUnitMultiplicator().y;
-        }
-        if(objectToCalculate.hasOwnProperty('width')){
-            objectToCalculate.width = objectToCalculate.width * this._positionUnitMultiplicator().x;
-        }
-        if(objectToCalculate.hasOwnProperty('height')){
-            objectToCalculate.height = objectToCalculate.height * this._positionUnitMultiplicator().y;
-        }
+
         return objectToCalculate;
     }
-    private _positionUnitMultiplicator():IVector2D {
-        if(this._unit === EPositionUnit.px){
+    private _positionUnitMultiplicator(ownType?:EPositionUnit):IVector2D {
+        if(ownType === EPositionUnit.px || (ownType === undefined && this._unit === EPositionUnit.px)){
             return {x:1, y:1};
         }
         return {x:this.ctx!.canvas.width/100, y:this.ctx!.canvas.height/100};
