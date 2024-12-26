@@ -22,6 +22,7 @@ enum eDrawEngineMode {
 
 
 export default class Canvas2dDrawEngine implements IDrawEngine{
+    public static USE_GLOBAL_COLOR = -26071988;
     private _analyticStore = {
         callback: (reason:string, props:any) => {
             // comment to ignore "no-empty" rule
@@ -169,7 +170,8 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
      * @returns {DrawEngine} - The current instance of the DrawEngine.
      */
     public selectRect(rect: IRectangleBase): IDrawEngine {
-        this._handleMethodStart('selectRect', {rect, _propsOrder:['rect']});
+        const body = [rect.x, rect.y, rect.width, rect.height];
+        this._handleMethodStart('selectRect', {rect, _propsOrder:['rect'], body});
         this._selectRect(this._convertToAbsolutePixels(rect));
         this._handleMethodEnd('selectRect', undefined);
         return this;
@@ -182,7 +184,8 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
      * @returns {DrawEngine} - The DrawEngine instance for method chaining.
      */
     public selectRoundRect(rect: IRectangleBase, borderRadius:number): IDrawEngine {
-        this._handleMethodStart('selectRoundRect', {rect, borderRadius, _propsOrder:['rect', 'borderRadius']});
+        const body = [rect.x, rect.y, rect.width, rect.height];
+        this._handleMethodStart('selectRoundRect', {rect, borderRadius, _propsOrder:['rect', 'borderRadius'], body});
         if(!this._drawCondition){return this;}
         const _radius = {tl: borderRadius, tr: borderRadius, br: borderRadius, bl: borderRadius};
 
@@ -307,25 +310,95 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
      * @returns {DrawEngine} - The DrawEngine instance.
      */
     public circle(position:IVector2D, radius:number, strokeStyle:number|string=-1, fillStyle:number|string=-1): IDrawEngine{
-        this._handleMethodStart('circle', {position, radius, strokeStyle, fillStyle, _propsOrder:['position', 'radius', 'strokeStyle', 'fillStyle']});
+        const body = [position.x - radius, position.y - radius, position.x + radius, position.y + radius];
+        this._handleMethodStart('circle', {position, radius, strokeStyle, fillStyle, _propsOrder:['position', 'radius', 'strokeStyle', 'fillStyle'], body});
         if(!this._drawCondition){return this;}
         position = this._convertToAbsolutePixels(position);
         this.ctx!.beginPath();
         this.ctx!.arc(position.x, position.y, radius, 0, Math.PI * 2);
         this.ctx!.closePath();
-        if(fillStyle.toString()!=='-1'){
-            const resetFillStyle = this.ctx!.fillStyle;
-            this.ctx!.fillStyle = fillStyle.toString();
-            this.ctx!.fill();
-            this.ctx!.fillStyle = resetFillStyle;
-        }
-        if(strokeStyle.toString()!=='-1'){
-            const resetStrokeStyle = this.ctx!.strokeStyle;
-            this.ctx!.strokeStyle = strokeStyle.toString();
-            this.ctx!.stroke();
-            this.ctx!.strokeStyle = resetStrokeStyle;
-        }
+
+        this._fill(fillStyle);
+        this._stroke(strokeStyle);
+
         this._handleMethodEnd('circle', undefined);
+        return this;
+    }
+
+    /**
+     * Draws a cube on the canvas.
+     *
+     * @param {IRectangleBase} planeRect - The rectangle object containing the position and dimensions of the plane of the cube.
+     * @param {number} [depth=-1] - The depth of the cube. Default is -1.
+     * @param {number} [angleZ=30] - The angle of the cube in the z-axis. Default is 30.
+     * @param {number|string} [strokeStyle=-1] - The stroke style of the cube. Default is -1.
+     * @param {number|string|number[]|string[]} [fillStyle=-1] - The fill style of the cube. Default is -1.
+     * @returns {IDrawEngine} - The DrawEngine instance for method chaining.
+     */
+    public cube(planeRect: IRectangleBase, depth: number = -1, angleZ = 30, strokeStyle:number|string=-1, fillStyle:number|string|number[]|string[]=-1):IDrawEngine{
+        depth = depth === -1 ? planeRect.width / 2 : depth;
+        // create back face
+        this.lines({
+                ...planeRect,
+                x:planeRect.x + Math.cos(angleZ * Math.PI / 180) * depth,
+                y:planeRect.y - Math.sin(angleZ * Math.PI / 180) * depth
+            },[
+                {x:planeRect.x + Math.cos(angleZ * Math.PI / 180) * depth + planeRect.width, y:planeRect.y - Math.sin(angleZ * Math.PI / 180) * depth},
+                {x:planeRect.x + Math.cos(angleZ * Math.PI / 180) * depth + planeRect.width, y:planeRect.y - Math.sin(angleZ * Math.PI / 180) * depth + planeRect.height},
+                {x:planeRect.x + Math.cos(angleZ * Math.PI / 180) * depth, y:planeRect.y - Math.sin(angleZ * Math.PI / 180) * depth + planeRect.height},
+            ],strokeStyle,(typeof fillStyle === 'number' || typeof fillStyle === 'string') ? fillStyle : fillStyle[0])
+        ;
+
+        // create bottom face
+        this.lines(planeRect,[
+                {x:planeRect.x, y:planeRect.y+planeRect.height},
+                {x:planeRect.x + Math.cos(angleZ * Math.PI / 180) * depth, y:planeRect.y - Math.sin(angleZ * Math.PI / 180) * depth + planeRect.height},
+                {x:planeRect.x + Math.cos(angleZ * Math.PI / 180) * depth + planeRect.width, y:planeRect.y - Math.sin(angleZ * Math.PI / 180) * depth + planeRect.height},
+                {x:planeRect.x + planeRect.width, y:planeRect.y + planeRect.height}
+            ],strokeStyle,(typeof fillStyle === 'number' || typeof fillStyle === 'string') ? fillStyle : fillStyle[1])
+        ;
+        // create right side
+        this.lines({
+                ...planeRect,
+                x:planeRect.x + planeRect.width,
+            },[
+                {x:planeRect.x + Math.cos(angleZ * Math.PI / 180) * depth + planeRect.width, y:planeRect.y - Math.sin(angleZ * Math.PI / 180) * depth},
+                {x:planeRect.x + Math.cos(angleZ * Math.PI / 180) * depth + planeRect.width, y:planeRect.y - Math.sin(angleZ * Math.PI / 180) * depth + planeRect.height},
+                {x:planeRect.x + planeRect.width, y:planeRect.y + planeRect.height},
+                {x:planeRect.x + planeRect.width, y:planeRect.y}
+            ],strokeStyle,(typeof fillStyle === 'number' || typeof fillStyle === 'string') ? fillStyle : fillStyle[2])
+        ;
+        // create left side
+        this.lines({
+                ...planeRect,
+                x:planeRect.x,
+                y:planeRect.y - .5
+            },[
+                {x:planeRect.x + Math.cos(angleZ * Math.PI / 180) * depth- 1, y:planeRect.y - Math.sin(angleZ * Math.PI / 180) * depth},
+                {x:planeRect.x + Math.cos(angleZ * Math.PI / 180) * depth, y:planeRect.y - Math.sin(angleZ * Math.PI / 180) * depth + planeRect.height},
+                {x:planeRect.x, y:planeRect.y + planeRect.height},
+                {x:planeRect.x, y:planeRect.y}
+            ],strokeStyle,(typeof fillStyle === 'number' || typeof fillStyle === 'string') ? fillStyle : fillStyle[3])
+        ;
+
+        // create the top face
+        this.lines(planeRect,[
+                {x:planeRect.x + Math.cos(angleZ * Math.PI / 180) * depth, y:(planeRect.y - Math.sin(angleZ * Math.PI / 180) * depth)},
+                {x:planeRect.x + Math.cos(angleZ * Math.PI / 180) * depth + planeRect.width, y:planeRect.y - Math.sin(angleZ * Math.PI / 180) * depth},
+                {x:planeRect.x + planeRect.width, y:planeRect.y},
+                planeRect
+            ],strokeStyle,(typeof fillStyle === 'number' || typeof fillStyle === 'string') ? fillStyle : fillStyle[4])
+        ;
+
+        // create the front face
+        this.lines(planeRect,[
+                {x:planeRect.x+planeRect.width, y:planeRect.y},
+                {x:planeRect.x+planeRect.width, y:planeRect.y+planeRect.height},
+                {x:planeRect.x, y:planeRect.y+planeRect.height},
+                {x:planeRect.x, y:planeRect.y}
+            ],strokeStyle,(typeof fillStyle === 'number' || typeof fillStyle === 'string') ? fillStyle : fillStyle[5])
+        ;
+
         return this;
     }
     public startAnalyse(callback: (reason:string, props:any)=>void): IDrawEngine {
@@ -350,18 +423,10 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
         position = this._convertToAbsolutePixels(position);
         this.ctx!.arc(position.x, position.y, outerRadius, 0, 2 * Math.PI);
         this.ctx!.arc(position.x, position.y, innerRadius, 0, 2 * Math.PI, true);
-        if(fillStyle!==-1){
-            const resetFillStyle = this.ctx!.fillStyle;
-            this.ctx!.fillStyle = fillStyle.toString();
-            this.ctx!.fill();
-            this.ctx!.fillStyle = resetFillStyle;
-        }
-        if(strokeStyle!==-1){
-            const resetStrokeStyle = this.ctx!.strokeStyle;
-            this.ctx!.strokeStyle = strokeStyle.toString();
-            this.ctx!.stroke();
-            this.ctx!.strokeStyle = resetStrokeStyle;
-        }
+
+        this._fill(fillStyle);
+        this._stroke(strokeStyle);
+
         this._handleMethodEnd('donut', undefined);
         return this;
     }
@@ -495,18 +560,10 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
             }
         }
         this.ctx!.closePath();
-        if(strokeStyle!==-1){
-            const resetStrokeStyle = this.ctx!.strokeStyle;
-            this.ctx!.strokeStyle = strokeStyle.toString();
-            this.ctx!.stroke();
-            this.ctx!.strokeStyle = resetStrokeStyle;
-        }
-        if(fillStyle!==-1){
-            const resetFillStyle = this.ctx!.fillStyle;
-            this.ctx!.fillStyle = fillStyle.toString();
-            this.ctx!.fill();
-            this.ctx!.fillStyle = resetFillStyle;
-        }
+
+        this._fill(fillStyle);
+        this._stroke(strokeStyle);
+
         this.ctx!.restore();
         this._handleMethodEnd('hexagon', undefined);
         return this;
@@ -586,16 +643,17 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
     /**
      * Draws a rectangle on the canvas.
      *
-     * @param {IRectangleBase} rect - The rectangle to be drawn.
+     * @param {IRectangleBase} rectangle - The rectangle to be drawn.
      * @param {number | string} [strokeStyle=-1] - The stroke color of the rectangle. If -1, no stroke color will be applied.
      * @param {number | string} [fillStyle=-1] - The fill color of the rectangle. If -1, no fill color will be applied.
      * @param {number} [angle=0] - The angle (in degrees) by which the rectangle will be rotated.
      * @param {IVector2D} [pivot={x:.5, y:.5}] - The pivot point for the rotation of the rectangle.
      *
-     * @returns {DrawEngine} - The DrawEngine object for method chaining.
+     * @returns {IDrawEngine} - The DrawEngine object for method chaining.
      */
     public rectangle(rect:IRectangleBase, strokeStyle:number|string='-1', fillStyle:number|string='-1', angle:number=0, pivot:IVector2D={x:.5,y:.5}):IDrawEngine {
-        this._handleMethodStart('rectangle', {rect, strokeStyle, fillStyle, angle, pivot, _propsOrder:['rect', 'strokeStyle', 'fillStyle', 'angle', 'pivot']});
+        const body = [rect.x, rect.y, rect.width, rect.height];
+        this._handleMethodStart('rectangle', {rect, strokeStyle, fillStyle, angle, pivot, _propsOrder:['rect', 'strokeStyle', 'fillStyle', 'angle', 'pivot'], body});
         if(!this._drawCondition){return this;}
 
         rect = this._convertToAbsolutePixels(rect);
@@ -612,22 +670,8 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
             .closePath()
         ;
 
-        if (fillStyle.toString() !== '-1') {
-            const resetFillStyle:any = this.ctx!.fillStyle;
-            this
-                .setFillStyle(fillStyle.toString())
-                .fill()
-                .setFillStyle(resetFillStyle)
-            ;
-        }
-        if (strokeStyle.toString() !== '-1') {
-            const resetStrokeStyle:any = this.ctx!.strokeStyle;
-            this
-                .setStrokeStyle(strokeStyle.toString())
-                .stroke()
-                .setStrokeStyle(resetStrokeStyle)
-            ;
-        }
+        this._fill(fillStyle);
+        this._stroke(strokeStyle);
 
         if(angle!==0){
             this.ctx!.restore();
@@ -659,19 +703,9 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
         this.selectRoundRect(rect, radius);
         this.ctx!.closePath();
 
-        if (fillStyle!==-1) {
-            const fillStyleReset = this.ctx!.fillStyle;
-            this.ctx!.fillStyle = fillStyle.toString();
-            this.ctx!.fill();
-            this.ctx!.fillStyle = fillStyleReset;
-        }
+        this._fill(fillStyle);
+        this._stroke(strokeStyle);
 
-        if (strokeStyle!==-1) {
-            const strokeStyleReset = this.ctx!.strokeStyle;
-            this.ctx!.strokeStyle = strokeStyle.toString();
-            this.ctx!.stroke();
-            this.ctx!.strokeStyle = strokeStyleReset;
-        }
         this._handleMethodEnd('roundRectangle', undefined);
         return this;
     }
@@ -759,29 +793,58 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
 
     private _convertToAbsolutePixels(objectToCalculate:any):any {
         if(typeof objectToCalculate === 'number'){
-            objectToCalculate = objectToCalculate * this._positionUnitMultiplicator().x;
+            return objectToCalculate * this._positionUnitMultiplicator().x;
         }else{
+            const result:any = {};
+            let updated = false;
             if(objectToCalculate.hasOwnProperty('x')){
-                objectToCalculate.x = objectToCalculate.x * this._positionUnitMultiplicator(objectToCalculate.hasOwnProperty('positionUnit') ? objectToCalculate.positionUnit : undefined).x;
+                result.x = objectToCalculate.x * this._positionUnitMultiplicator(objectToCalculate.hasOwnProperty('positionUnit') ? objectToCalculate.positionUnit : undefined).x;
+                updated = true;
             }
             if(objectToCalculate.hasOwnProperty('y')){
-                objectToCalculate.y = objectToCalculate.y * this._positionUnitMultiplicator(objectToCalculate.hasOwnProperty('positionUnit') ? objectToCalculate.positionUnit : undefined).y;
+                result.y = objectToCalculate.y * this._positionUnitMultiplicator(objectToCalculate.hasOwnProperty('positionUnit') ? objectToCalculate.positionUnit : undefined).y;
+                updated = true;
             }
             if(objectToCalculate.hasOwnProperty('width')){
-                objectToCalculate.width = objectToCalculate.width * this._positionUnitMultiplicator(objectToCalculate.hasOwnProperty('positionUnit') ? objectToCalculate.positionUnit : undefined).x;
+                result.width = objectToCalculate.width * this._positionUnitMultiplicator(objectToCalculate.hasOwnProperty('positionUnit') ? objectToCalculate.positionUnit : undefined).x;
+                updated = true;
             }
             if(objectToCalculate.hasOwnProperty('height')){
-                objectToCalculate.height = objectToCalculate.height * this._positionUnitMultiplicator(objectToCalculate.hasOwnProperty('positionUnit') ? objectToCalculate.positionUnit : undefined).y;
+                result.height = objectToCalculate.height * this._positionUnitMultiplicator(objectToCalculate.hasOwnProperty('positionUnit') ? objectToCalculate.positionUnit : undefined).y;
+                updated = true;
+            }
+            return updated ? result : objectToCalculate;
+        }
+    }
+    private _fill(fillStyle:number|string): void {
+        if(fillStyle.toString()!=='-1'){
+            if(fillStyle===Canvas2dDrawEngine.USE_GLOBAL_COLOR){
+                this.ctx!.fill();
+            }else{
+                const resetFillStyle = this.ctx!.fillStyle;
+                this.ctx!.fillStyle = fillStyle.toString();
+                this.ctx!.fill();
+                this.ctx!.fillStyle = resetFillStyle;
             }
         }
-
-        return objectToCalculate;
     }
     private _positionUnitMultiplicator(ownType?:EPositionUnit):IVector2D {
         if(ownType === EPositionUnit.px || (ownType === undefined && this._unit === EPositionUnit.px)){
             return {x:1, y:1};
         }
         return {x:this.ctx!.canvas.width/100, y:this.ctx!.canvas.height/100};
+    }
+    private _stroke(strokeStyle:number|string): void {
+        if(strokeStyle.toString()!=='-1'){
+            if(strokeStyle===Canvas2dDrawEngine.USE_GLOBAL_COLOR){
+                this.ctx!.stroke();
+            }else{
+                const resetStrokeStyle = this.ctx!.strokeStyle;
+                this.ctx!.strokeStyle = strokeStyle.toString();
+                this.ctx!.stroke();
+                this.ctx!.strokeStyle = resetStrokeStyle;
+            }
+        }
     }
     private _handleMethodStart(methodName:string, props:any= {}, overrideProps:any= {}){
         if(this._mode === eDrawEngineMode.simple){

@@ -8,7 +8,6 @@ import dom from "./lib/dom";
 import CachedDataProviderClass from "./Provider/CachedDataProvider";
 import DialogProviderClass  from "./service/DialogProvider";
 import ObjectStoreProviderClass from "./service/ObjectStoreProvider";
-import {IDialog} from "./Interfaces/IDialog";
 
 export default {
   CachedDataProvider: CachedDataProviderClass,
