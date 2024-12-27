@@ -335,7 +335,11 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
      * @param {number|string|number[]|string[]} [fillStyle=-1] - The fill style of the cube. Default is -1.
      * @returns {IDrawEngine} - The DrawEngine instance for method chaining.
      */
-    public cube(planeRect: IRectangleBase, depth: number = -1, angleZ = 30, strokeStyle:number|string=-1, fillStyle:number|string|number[]|string[]=-1):IDrawEngine{
+    public cube(planeRect: IRectangleBase, depth: number = -1, angleZ:number = 30, strokeStyle:number|string=-1, fillStyle:number|string|number[]|string[]=-1):IDrawEngine{
+        const body = [planeRect.x, planeRect.y, planeRect.width, planeRect.height];
+        this._handleMethodStart('cube', {planeRect, depth, angleZ, strokeStyle, fillStyle, _propsOrder:['planeRect', 'depth', 'angleZ', 'strokeStyle', 'fillStyle'], body});
+        if(!this._drawCondition){return this;}
+
         depth = depth === -1 ? planeRect.width / 2 : depth;
         // create back face
         this.lines({

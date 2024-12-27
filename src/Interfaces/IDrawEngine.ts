@@ -17,6 +17,7 @@ export interface IDrawEngine {
     clipRoundRect(rect:IRectangleBase|IRectangleBase[], radius:number): IDrawEngine;
     closePath():IDrawEngine;
     cls():IDrawEngine;
+    cube(planeRect: IRectangleBase, depth?: number, angleZ?:number, strokeStyle?:number|string, fillStyle?:number|string|number[]|string[]): IDrawEngine;
     getContext():CanvasRenderingContext2D;
     gradientLines(start:IVector2D, destinations:IVector2D[], colors:Array<IColor|string|number>, width?:number):IDrawEngine;
     removeDrawCondition():IDrawEngine;
