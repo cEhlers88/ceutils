@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="../dev.js"></script>
+        <script type="application/javascript">
+            window.addEventListener('DOMContentLoaded',()=>{
+                let angleX = 0;
+                let angleY = 0;
+                let angleZ = 0;
+                let angleXMove = 1;
+                let angleYMove = 1;
+                let angleZMove = 1;
+                const canvas = document.getElementsByTagName('canvas')[0];
+                const drawEngine = window.ceutils.canvasLib.getDrawEngine(canvas);
+
+                const draw = () => {
+                    drawEngine
+                        .cls()
+                        .cube3d({
+                            x: 760,
+                            y: 260,
+                            width: 60,
+                            height: 60,
+                        },60, { x: angleX, y: angleY, z: angleZ},'red',[
+                            'black','orange','red','blue','green','yellow'
+                            //-1,-1,-1,-1,-1,'black'
+                        ],{
+                            x: 0.5,
+                            y: .5,
+                            z: 0.5
+                        })
+                    ;
+                }
+                const update = () => {
+                    angleX += angleXMove;
+                    angleY += angleYMove;
+                    angleZ += angleZMove;
+                    if(angleX > 500 || angleX < -500){
+                        angleXMove *= -1;
+                    }
+                    if(angleY > 500 || angleY < -500){
+                        angleYMove *= -1;
+                    }
+                    if(angleZ > 500 || angleZ < -500){
+                        angleZMove *= -1;
+                    }
+                }
+
+                const loop = () => {
+                    update();
+                    draw();
+                    requestAnimationFrame(loop);
+                }
+
+                loop();
+            });
+        </script>
+    </head>
+    <body>
+        <canvas width="1000" height="1000"></canvas>
+    </body>
+</html>

@@ -9,6 +9,7 @@ import {EPositionUnit} from "../enum/EPositionUnit";
 import {IColor} from "./IColor";
 import IRectangleBase from "./IRectangleBase";
 import IVector2D from "./IVector2D";
+import IVector3D from "./IVector3D";
 
 export interface IDrawEngine {
     beginPath():IDrawEngine;
@@ -17,7 +18,8 @@ export interface IDrawEngine {
     clipRoundRect(rect:IRectangleBase|IRectangleBase[], radius:number): IDrawEngine;
     closePath():IDrawEngine;
     cls():IDrawEngine;
-    cube(planeRect: IRectangleBase, depth?: number, angleZ?:number, strokeStyle?:number|string, fillStyle?:number|string|number[]|string[]): IDrawEngine;
+    cube(planeRect: IRectangleBase, depth?: number, angles?: { x:number, y:number, z:number }, strokeStyle?:number|string, fillStyle?:number|string|number[]|string[]): IDrawEngine;
+    cube3d(planeRect: IRectangleBase, depth?: number, angles?: { x:number, y:number, z:number }, strokeStyle?:number|string, fillStyle?:number|string|number[]|string[], pivot?:IVector3D): IDrawEngine;
     getContext():CanvasRenderingContext2D;
     gradientLines(start:IVector2D, destinations:IVector2D[], colors:Array<IColor|string|number>, width?:number):IDrawEngine;
     removeDrawCondition():IDrawEngine;
@@ -29,7 +31,7 @@ export interface IDrawEngine {
     setFont(font:string):IDrawEngine;
     setGlobalCompositeOperation(newState:GlobalCompositeOperation):IDrawEngine;
     setStrokeStyle(strokeStyle:number|string):IDrawEngine;
-    donut(position:IVector2D,outerRadius:number, innerRadius:number, strokeStyle?:number|string, fillStyle?:number|string):IDrawEngine
+    donut(position:IVector2D,outerRadius:number, innerRadius:number, strokeStyle?:number|string, fillStyle?:number|string):IDrawEngine;
     fill(fillRule?:CanvasFillRule|any):IDrawEngine;
     grid (gridSize:number, strokeStyle:string, area?:IRectangleBase|undefined, angle?:number): IDrawEngine;
     hexagon(position:IVector2D, radius:number, strokeStyle?:number|string, fillStyle?:number|string, angle?:number): IDrawEngine

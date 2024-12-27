@@ -4,10 +4,13 @@
 import {EPositionUnit} from "../enum/EPositionUnit";
 import {IColor} from "../Interfaces/IColor";
 import {IDrawEngine} from "../Interfaces/IDrawEngine";
+import IProcessAnalyzer from "../Interfaces/IProcessAnalyzer";
 import IRectangle from "../Interfaces/IRectangle";
 import IRectangleBase from "../Interfaces/IRectangleBase";
 import IVector2D from "../Interfaces/IVector2D";
+import IVector3D from "../Interfaces/IVector3D";
 import Vector2D from "../Vector2D";
+import SilentProcessAnalyzer from "../Analyzer/SilentProcessAnalyzer";
 
 enum eAnalyticCallbackReason {
     start_root_method = 'start_root_method',
@@ -20,12 +23,14 @@ enum eDrawEngineMode {
     simple = 'simple',
 }
 
-
 export default class Canvas2dDrawEngine implements IDrawEngine{
     public static USE_GLOBAL_COLOR = -26071988;
+
+    private _analyzer:IProcessAnalyzer = new SilentProcessAnalyzer();
+
     private _analyticStore = {
         callback: (reason:string, props:any) => {
-            // comment to ignore "no-empty" rule
+            return;
         },
         currentRootMethod: '',
         startTimeRootMethod: 0,
@@ -330,78 +335,224 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
      *
      * @param {IRectangleBase} planeRect - The rectangle object containing the position and dimensions of the plane of the cube.
      * @param {number} [depth=-1] - The depth of the cube. Default is -1.
-     * @param {number} [angleZ=30] - The angle of the cube in the z-axis. Default is 30.
+     * @param {{x:number, y:number, z:number}} [angles={x:0, y:0, z:30}] - The angles of the cube in degrees. Default is {x:0, y:0, z:30}
      * @param {number|string} [strokeStyle=-1] - The stroke style of the cube. Default is -1.
      * @param {number|string|number[]|string[]} [fillStyle=-1] - The fill style of the cube. Default is -1.
      * @returns {IDrawEngine} - The DrawEngine instance for method chaining.
      */
-    public cube(planeRect: IRectangleBase, depth: number = -1, angleZ:number = 30, strokeStyle:number|string=-1, fillStyle:number|string|number[]|string[]=-1):IDrawEngine{
+    public cube(
+        planeRect: IRectangleBase,
+        depth: number = -1,
+        angles: { x: number, y: number, z: number } = { x: 0, y: 0, z: 30 },
+        strokeStyle: number | string = -1,
+        fillStyle: number | string | number[] | string[] = -1
+    ): IDrawEngine {
         const body = [planeRect.x, planeRect.y, planeRect.width, planeRect.height];
-        this._handleMethodStart('cube', {planeRect, depth, angleZ, strokeStyle, fillStyle, _propsOrder:['planeRect', 'depth', 'angleZ', 'strokeStyle', 'fillStyle'], body});
-        if(!this._drawCondition){return this;}
+        this._handleMethodStart('cube', { planeRect, depth, angle: angles, strokeStyle, fillStyle, _propsOrder: ['planeRect', 'depth', 'angles', 'strokeStyle', 'fillStyle'], body });
+        if (!this._drawCondition) { return this; }
 
         depth = depth === -1 ? planeRect.width / 2 : depth;
+        const cosZ = Math.cos(angles.z * Math.PI / 180);
+        const sinZ = Math.sin(angles.z * Math.PI / 180);
+
         // create back face
         this.lines({
-                ...planeRect,
-                x:planeRect.x + Math.cos(angleZ * Math.PI / 180) * depth,
-                y:planeRect.y - Math.sin(angleZ * Math.PI / 180) * depth
-            },[
-                {x:planeRect.x + Math.cos(angleZ * Math.PI / 180) * depth + planeRect.width, y:planeRect.y - Math.sin(angleZ * Math.PI / 180) * depth},
-                {x:planeRect.x + Math.cos(angleZ * Math.PI / 180) * depth + planeRect.width, y:planeRect.y - Math.sin(angleZ * Math.PI / 180) * depth + planeRect.height},
-                {x:planeRect.x + Math.cos(angleZ * Math.PI / 180) * depth, y:planeRect.y - Math.sin(angleZ * Math.PI / 180) * depth + planeRect.height},
-            ],strokeStyle,(typeof fillStyle === 'number' || typeof fillStyle === 'string') ? fillStyle : fillStyle[0])
-        ;
+            ...planeRect,
+            x: planeRect.x + cosZ * depth,
+            y: planeRect.y - sinZ * depth
+        }, [
+            { x: planeRect.x + cosZ * depth + planeRect.width, y: planeRect.y - sinZ * depth },
+            { x: planeRect.x + cosZ * depth + planeRect.width, y: planeRect.y - sinZ * depth + planeRect.height },
+            { x: planeRect.x + cosZ * depth, y: planeRect.y - sinZ * depth + planeRect.height },
+        ], strokeStyle, (typeof fillStyle === 'number' || typeof fillStyle === 'string') ? fillStyle : fillStyle[0]);
 
         // create bottom face
-        this.lines(planeRect,[
-                {x:planeRect.x, y:planeRect.y+planeRect.height},
-                {x:planeRect.x + Math.cos(angleZ * Math.PI / 180) * depth, y:planeRect.y - Math.sin(angleZ * Math.PI / 180) * depth + planeRect.height},
-                {x:planeRect.x + Math.cos(angleZ * Math.PI / 180) * depth + planeRect.width, y:planeRect.y - Math.sin(angleZ * Math.PI / 180) * depth + planeRect.height},
-                {x:planeRect.x + planeRect.width, y:planeRect.y + planeRect.height}
-            ],strokeStyle,(typeof fillStyle === 'number' || typeof fillStyle === 'string') ? fillStyle : fillStyle[1])
-        ;
+        this.lines({
+            ...planeRect,
+            y: planeRect.y + planeRect.height
+        }, [
+            { x: planeRect.x + cosZ * depth, y: planeRect.y + planeRect.height - sinZ * depth },
+            { x: planeRect.x + cosZ * depth + planeRect.width, y: planeRect.y + planeRect.height - sinZ * depth },
+            { x: planeRect.x + planeRect.width, y: planeRect.y + planeRect.height }
+        ], strokeStyle, (typeof fillStyle === 'number' || typeof fillStyle === 'string') ? fillStyle : fillStyle[1]);
+
         // create right side
         this.lines({
-                ...planeRect,
-                x:planeRect.x + planeRect.width,
-            },[
-                {x:planeRect.x + Math.cos(angleZ * Math.PI / 180) * depth + planeRect.width, y:planeRect.y - Math.sin(angleZ * Math.PI / 180) * depth},
-                {x:planeRect.x + Math.cos(angleZ * Math.PI / 180) * depth + planeRect.width, y:planeRect.y - Math.sin(angleZ * Math.PI / 180) * depth + planeRect.height},
-                {x:planeRect.x + planeRect.width, y:planeRect.y + planeRect.height},
-                {x:planeRect.x + planeRect.width, y:planeRect.y}
-            ],strokeStyle,(typeof fillStyle === 'number' || typeof fillStyle === 'string') ? fillStyle : fillStyle[2])
-        ;
+            ...planeRect,
+            x: planeRect.x + planeRect.width,
+        }, [
+            { x: planeRect.x + cosZ * depth + planeRect.width, y: planeRect.y - sinZ * depth },
+            { x: planeRect.x + cosZ * depth + planeRect.width, y: planeRect.y - sinZ * depth + planeRect.height },
+            { x: planeRect.x + planeRect.width, y: planeRect.y + planeRect.height },
+            { x: planeRect.x + planeRect.width, y: planeRect.y }
+        ], strokeStyle, (typeof fillStyle === 'number' || typeof fillStyle === 'string') ? fillStyle : fillStyle[2]);
+
         // create left side
         this.lines({
-                ...planeRect,
-                x:planeRect.x,
-                y:planeRect.y - .5
-            },[
-                {x:planeRect.x + Math.cos(angleZ * Math.PI / 180) * depth- 1, y:planeRect.y - Math.sin(angleZ * Math.PI / 180) * depth},
-                {x:planeRect.x + Math.cos(angleZ * Math.PI / 180) * depth, y:planeRect.y - Math.sin(angleZ * Math.PI / 180) * depth + planeRect.height},
-                {x:planeRect.x, y:planeRect.y + planeRect.height},
-                {x:planeRect.x, y:planeRect.y}
-            ],strokeStyle,(typeof fillStyle === 'number' || typeof fillStyle === 'string') ? fillStyle : fillStyle[3])
-        ;
+            ...planeRect,
+            x: planeRect.x,
+            y: planeRect.y - .5
+        }, [
+            { x: planeRect.x + cosZ * depth - 1, y: planeRect.y - sinZ * depth },
+            { x: planeRect.x + cosZ * depth, y: planeRect.y - sinZ * depth + planeRect.height },
+            { x: planeRect.x, y: planeRect.y + planeRect.height },
+            { x: planeRect.x, y: planeRect.y }
+        ], strokeStyle, (typeof fillStyle === 'number' || typeof fillStyle === 'string') ? fillStyle : fillStyle[3]);
 
         // create the top face
-        this.lines(planeRect,[
-                {x:planeRect.x + Math.cos(angleZ * Math.PI / 180) * depth, y:(planeRect.y - Math.sin(angleZ * Math.PI / 180) * depth)},
-                {x:planeRect.x + Math.cos(angleZ * Math.PI / 180) * depth + planeRect.width, y:planeRect.y - Math.sin(angleZ * Math.PI / 180) * depth},
-                {x:planeRect.x + planeRect.width, y:planeRect.y},
-                planeRect
-            ],strokeStyle,(typeof fillStyle === 'number' || typeof fillStyle === 'string') ? fillStyle : fillStyle[4])
-        ;
+        this.lines(planeRect, [
+            { x: planeRect.x + cosZ * depth, y: planeRect.y - sinZ * depth },
+            { x: planeRect.x + cosZ * depth + planeRect.width, y: planeRect.y - sinZ * depth },
+            { x: planeRect.x + planeRect.width, y: planeRect.y },
+            planeRect
+        ], strokeStyle, (typeof fillStyle === 'number' || typeof fillStyle === 'string') ? fillStyle : fillStyle[4]);
 
         // create the front face
-        this.lines(planeRect,[
-                {x:planeRect.x+planeRect.width, y:planeRect.y},
-                {x:planeRect.x+planeRect.width, y:planeRect.y+planeRect.height},
-                {x:planeRect.x, y:planeRect.y+planeRect.height},
-                {x:planeRect.x, y:planeRect.y}
-            ],strokeStyle,(typeof fillStyle === 'number' || typeof fillStyle === 'string') ? fillStyle : fillStyle[5])
-        ;
+        this.lines(planeRect, [
+            { x: planeRect.x + planeRect.width, y: planeRect.y },
+            { x: planeRect.x + planeRect.width, y: planeRect.y + planeRect.height },
+            { x: planeRect.x, y: planeRect.y + planeRect.height },
+            { x: planeRect.x, y: planeRect.y }
+        ], strokeStyle, (typeof fillStyle === 'number' || typeof fillStyle === 'string') ? fillStyle : fillStyle[5]);
+
+        return this;
+    }
+
+    /**
+     * Draws a 3D cube on the canvas.
+     * The cube is drawn in 3D space with perspective projection.
+     *
+     * @param {IRectangleBase} planeRect - The rectangle object containing the position and dimensions of the plane of the cube.
+     * @param {number} [depth=-1] - The depth of the cube. Default is -1.
+     * @param {{x:number, y:number, z:number}} [angles={x:0, y:0, z:30}] - The angles of the cube in degrees. Default is {x:0, y:0, z:30}
+     * @param {number|string} [strokeStyle=-1] - The stroke style of the cube. Default is -1.
+     * @param {number|string|number[]|string[]} [fillStyle=-1] - The fill style of the cube. Default is -1.
+     * @param {IVector3D} [pivot={x:0.5, y:0.5, z:0.5}] - The pivot point of the cube. Default is {x:0.5, y:0.5, z:0.5}.
+     * @returns {IDrawEngine} - The DrawEngine instance for method chaining.
+     */
+    public cube3d(
+        planeRect: IRectangleBase,
+        depth: number = -1,
+        angles: { x: number, y: number, z: number } = { x: 0, y: 0, z: 30 },
+        strokeStyle: number | string = -1,
+        fillStyle: number | string | number[] | string[] = -1,
+        pivot: IVector3D = { x: 0.5, y: 0.5, z: 0.5 }
+    ): IDrawEngine {
+        const body = [planeRect.x, planeRect.y, planeRect.width, planeRect.height];
+        this._handleMethodStart('cube', { planeRect, depth, angle: angles, strokeStyle, fillStyle, pivot, _propsOrder: ['planeRect', 'depth', 'angles', 'strokeStyle', 'fillStyle', 'pivot'], body });
+        if (!this._drawCondition) { return this; }
+
+        depth = depth === -1 ? planeRect.width / 2 : depth;
+
+        const centerX = planeRect.x + planeRect.width / 2;
+        const centerY = planeRect.y + planeRect.height / 2;
+        const centerZ = depth / 2;
+
+        const pivot3D = {
+            x: (pivot.x - 0.5) * planeRect.width,
+            y: (pivot.y - 0.5) * planeRect.height,
+            z: (pivot.z - 0.5) * depth
+        };
+
+        const vertices = [
+            { x: -planeRect.width / 2, y: -planeRect.height / 2, z: -centerZ },
+            { x: planeRect.width / 2, y: -planeRect.height / 2, z: -centerZ },
+            { x: planeRect.width / 2, y: planeRect.height / 2, z: -centerZ },
+            { x: -planeRect.width / 2, y: planeRect.height / 2, z: -centerZ },
+            { x: -planeRect.width / 2, y: -planeRect.height / 2, z: centerZ },
+            { x: planeRect.width / 2, y: -planeRect.height / 2, z: centerZ },
+            { x: planeRect.width / 2, y: planeRect.height / 2, z: centerZ },
+            { x: -planeRect.width / 2, y: planeRect.height / 2, z: centerZ }
+        ];
+
+        const rotateX = (point: any, angle: number) => {
+            const rad = angle * Math.PI / 180;
+            const cos = Math.cos(rad);
+            const sin = Math.sin(rad);
+            return {
+                x: point.x,
+                y: (point.y - pivot3D.y) * cos - (point.z - pivot3D.z) * sin + pivot3D.y,
+                z: (point.y - pivot3D.y) * sin + (point.z - pivot3D.z) * cos + pivot3D.z
+            };
+        };
+
+        const rotateY = (point: any, angle: number) => {
+            const rad = angle * Math.PI / 180;
+            const cos = Math.cos(rad);
+            const sin = Math.sin(rad);
+            return {
+                x: (point.x - pivot3D.x) * cos + (point.z - pivot3D.z) * sin + pivot3D.x,
+                y: point.y,
+                z: -(point.x - pivot3D.x) * sin + (point.z - pivot3D.z) * cos + pivot3D.z
+            };
+        };
+
+        const rotateZ = (point: any, angle: number) => {
+            const rad = angle * Math.PI / 180;
+            const cos = Math.cos(rad);
+            const sin = Math.sin(rad);
+            return {
+                x: (point.x - pivot3D.x) * cos - (point.y - pivot3D.y) * sin + pivot3D.x,
+                y: (point.x - pivot3D.x) * sin + (point.y - pivot3D.y) * cos + pivot3D.y,
+                z: point.z
+            };
+        };
+
+        const project = (point: any) => {
+            const scale = 500 / (500 + point.z);
+            return {
+                x: point.x * scale + centerX,
+                y: point.y * scale + centerY,
+                z: point.z
+            };
+        };
+
+        const transformedVertices = vertices.map(v => project(rotateZ(rotateY(rotateX(v, angles.x), angles.y), angles.z)));
+
+        const faces = [
+            [0, 1, 2, 3], // front
+            [4, 5, 6, 7], // back
+            [0, 1, 5, 4], // top
+            [2, 3, 7, 6], // bottom
+            [0, 3, 7, 4], // left
+            [1, 2, 6, 5]  // right
+        ];
+
+        const faceDepths = faces.map((face, index) => ({
+            depth: face.reduce((sum, i) => sum + transformedVertices[i].z, 0) / face.length,
+            face,
+            fillStyle: (typeof fillStyle === 'number' || typeof fillStyle === 'string') ? fillStyle : fillStyle[index]
+        }));
+
+        faceDepths.sort((a, b) => b.depth - a.depth);
+
+        // tslint:disable-next-line:no-shadowed-variable
+        faceDepths.forEach(({ face, fillStyle }) => {
+            this.lines(
+                { x: transformedVertices[face[0]].x, y: transformedVertices[face[0]].y },
+                face.map(i => ({ x: transformedVertices[i].x, y: transformedVertices[i].y })),
+                strokeStyle,
+                fillStyle
+            );
+        });
+
+        const edges = [
+            [0, 4], [1, 5], [2, 6], [3, 7]
+        ];
+
+        edges.forEach(edge => {
+            const [start, end] = edge;
+            const startFace = faceDepths.find(({ face }) => face.includes(start))!;
+            const endFace = faceDepths.find(({ face }) => face.includes(end))!;
+            if (startFace.fillStyle === -1 || endFace.fillStyle === -1) {
+                this.lines(
+                    { x: transformedVertices[start].x, y: transformedVertices[start].y },
+                    [{ x: transformedVertices[end].x, y: transformedVertices[end].y }],
+                    strokeStyle,
+                    -1
+                );
+            }
+        });
 
         return this;
     }
