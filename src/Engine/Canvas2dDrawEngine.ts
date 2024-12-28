@@ -1,6 +1,7 @@
 /**
  * A class that provides methods for drawing on a canvas.
  */
+import SilentProcessAnalyzer from "../Analyzer/SilentProcessAnalyzer";
 import {EPositionUnit} from "../enum/EPositionUnit";
 import {IColor} from "../Interfaces/IColor";
 import {IDrawEngine} from "../Interfaces/IDrawEngine";
@@ -10,7 +11,6 @@ import IRectangleBase from "../Interfaces/IRectangleBase";
 import IVector2D from "../Interfaces/IVector2D";
 import IVector3D from "../Interfaces/IVector3D";
 import Vector2D from "../Vector2D";
-import SilentProcessAnalyzer from "../Analyzer/SilentProcessAnalyzer";
 
 enum eAnalyticCallbackReason {
     start_root_method = 'start_root_method',
@@ -40,6 +40,9 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
     private _drawCondition:boolean = true; // allow drawing?
     private _unit:EPositionUnit = EPositionUnit.px;
     private ctx?:CanvasRenderingContext2D;
+
+
+
     /**
      * Begins a new path in the current drawing context.
      *
@@ -424,7 +427,7 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
      *
      * @param {IRectangleBase} planeRect - The rectangle object containing the position and dimensions of the plane of the cube.
      * @param {number} [depth=-1] - The depth of the cube. Default is -1.
-     * @param {{x:number, y:number, z:number}} [angles={x:0, y:0, z:30}] - The angles of the cube in degrees. Default is {x:0, y:0, z:30}
+     * @param {IVector3D|IVector3D[]|number[]|number[][]} [angles={x:0, y:0, z:30}] - The angles of the cube in degrees. Default is {x:0, y:0, z:30}
      * @param {number|string} [strokeStyle=-1] - The stroke style of the cube. Default is -1.
      * @param {number|string|number[]|string[]} [fillStyle=-1] - The fill style of the cube. Default is -1.
      * @param {IVector3D} [pivot={x:0.5, y:0.5, z:0.5}] - The pivot point of the cube. Default is {x:0.5, y:0.5, z:0.5}.
@@ -433,7 +436,7 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
     public cube3d(
         planeRect: IRectangleBase,
         depth: number = -1,
-        angles: { x: number, y: number, z: number } = { x: 0, y: 0, z: 30 },
+        angles: IVector3D | IVector3D[] | number[] | number[][] = { x: 0, y: 0, z: 30 },
         strokeStyle: number | string = -1,
         fillStyle: number | string | number[] | string[] = -1,
         pivot: IVector3D = { x: 0.5, y: 0.5, z: 0.5 }
@@ -464,40 +467,24 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
             { x: planeRect.width / 2, y: planeRect.height / 2, z: centerZ },
             { x: -planeRect.width / 2, y: planeRect.height / 2, z: centerZ }
         ];
+        const rotate = (point: IVector3D, rotation: IVector3D) => {
+            const radX = rotation.x * Math.PI / 180;
+            const radY = rotation.y * Math.PI / 180;
+            const radZ = rotation.z * Math.PI / 180;
 
-        const rotateX = (point: any, angle: number) => {
-            const rad = angle * Math.PI / 180;
-            const cos = Math.cos(rad);
-            const sin = Math.sin(rad);
-            return {
-                x: point.x,
-                y: (point.y - pivot3D.y) * cos - (point.z - pivot3D.z) * sin + pivot3D.y,
-                z: (point.y - pivot3D.y) * sin + (point.z - pivot3D.z) * cos + pivot3D.z
-            };
+            const cosX = Math.cos(radX);
+            const sinX = Math.sin(radX);
+            const cosY = Math.cos(radY);
+            const sinY = Math.sin(radY);
+            const cosZ = Math.cos(radZ);
+            const sinZ = Math.sin(radZ);
+
+            const x1 = cosY * (sinZ * point.y + cosZ * point.x) - sinY * point.z;
+            const y1 = sinX * (cosY * point.z + sinY * (sinZ * point.y + cosZ * point.x)) + cosX * (cosZ * point.y - sinZ * point.x);
+            const z1 = cosX * (cosY * point.z + sinY * (sinZ * point.y + cosZ * point.x)) - sinX * (cosZ * point.y - sinZ * point.x);
+
+            return { x: x1, y: y1, z: z1 };
         };
-
-        const rotateY = (point: any, angle: number) => {
-            const rad = angle * Math.PI / 180;
-            const cos = Math.cos(rad);
-            const sin = Math.sin(rad);
-            return {
-                x: (point.x - pivot3D.x) * cos + (point.z - pivot3D.z) * sin + pivot3D.x,
-                y: point.y,
-                z: -(point.x - pivot3D.x) * sin + (point.z - pivot3D.z) * cos + pivot3D.z
-            };
-        };
-
-        const rotateZ = (point: any, angle: number) => {
-            const rad = angle * Math.PI / 180;
-            const cos = Math.cos(rad);
-            const sin = Math.sin(rad);
-            return {
-                x: (point.x - pivot3D.x) * cos - (point.y - pivot3D.y) * sin + pivot3D.x,
-                y: (point.x - pivot3D.x) * sin + (point.y - pivot3D.y) * cos + pivot3D.y,
-                z: point.z
-            };
-        };
-
         const project = (point: any) => {
             const scale = 500 / (500 + point.z);
             return {
@@ -507,7 +494,25 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
             };
         };
 
-        const transformedVertices = vertices.map(v => project(rotateZ(rotateY(rotateX(v, angles.x), angles.y), angles.z)));
+        let transformedVertices = vertices;
+
+        this._convertToVector3D(angles).map(rotation => {
+            transformedVertices = transformedVertices.map(v => {
+                const relativeVertex = {
+                    x: v.x - pivot3D.x,
+                    y: v.y - pivot3D.y,
+                    z: v.z - pivot3D.z,
+                };
+                const rotatedVertex = rotate(relativeVertex, rotation);
+                return {
+                    x: rotatedVertex.x + pivot3D.x,
+                    y: rotatedVertex.y + pivot3D.y,
+                    z: rotatedVertex.z + pivot3D.z,
+                };
+            });
+        });
+
+        transformedVertices = transformedVertices.map(v => project(v));
 
         const faces = [
             [0, 1, 2, 3], // front
@@ -540,7 +545,7 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
             [0, 4], [1, 5], [2, 6], [3, 7]
         ];
 
-        edges.forEach(edge => {
+        edges.map(edge => {
             const [start, end] = edge;
             const startFace = faceDepths.find(({ face }) => face.includes(start))!;
             const endFace = faceDepths.find(({ face }) => face.includes(end))!;
@@ -969,6 +974,24 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
                 updated = true;
             }
             return updated ? result : objectToCalculate;
+        }
+    }
+    private _convertToVector3D(input: IVector3D | IVector3D[] | number[] | number[][]): IVector3D[] {
+        if (Array.isArray(input)) {
+            if (Array.isArray(input[0])) {
+                return (input as number[][]).map(arr => ({ x: arr[0], y: arr[1], z: arr[2] }));
+            } else if (typeof input[0] === 'number') {
+                const arr = input as number[];
+                if (arr.length === 3) {
+                    return [{ x: arr[0], y: arr[1], z: arr[2] }];
+                } else {
+                    throw new Error("Invalid array length for Vector3D conversion.");
+                }
+            } else {
+                return input as IVector3D[];
+            }
+        } else {
+            return [input as IVector3D];
         }
     }
     private _fill(fillStyle:number|string): void {

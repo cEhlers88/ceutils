@@ -19,7 +19,7 @@ export interface IDrawEngine {
     closePath():IDrawEngine;
     cls():IDrawEngine;
     cube(planeRect: IRectangleBase, depth?: number, angles?: { x:number, y:number, z:number }, strokeStyle?:number|string, fillStyle?:number|string|number[]|string[]): IDrawEngine;
-    cube3d(planeRect: IRectangleBase, depth?: number, angles?: { x:number, y:number, z:number }, strokeStyle?:number|string, fillStyle?:number|string|number[]|string[], pivot?:IVector3D): IDrawEngine;
+    cube3d(planeRect: IRectangleBase, depth?: number, angles?: IVector3D|IVector3D[]|number[]|number[][], strokeStyle?:number|string, fillStyle?:number|string|number[]|string[], pivot?:IVector3D): IDrawEngine;
     getContext():CanvasRenderingContext2D;
     gradientLines(start:IVector2D, destinations:IVector2D[], colors:Array<IColor|string|number>, width?:number):IDrawEngine;
     removeDrawCondition():IDrawEngine;
