@@ -38,8 +38,9 @@ export interface IDrawEngine {
     image(canvas:HTMLCanvasElement, sourceRect:IRectangleBase, destinationRect?:IRectangleBase, angle?:number, pivot?:IVector2D):IDrawEngine;
     lines(startPosition:IVector2D, destinations:IVector2D[], strokeStyle?:number|string, fillStyle?:number|string, lineWidth?:number): IDrawEngine;
     moveTo(position:IVector2D):IDrawEngine;
+    ngon(position:IVector2D, radius:number, sides:number, strokeStyle?:number|string, fillStyle?:number|string, angle?:number):IDrawEngine;
     quadraticCurveTo(controlPoint:IVector2D, position:IVector2D):IDrawEngine;
-    rectangle(rect:IRectangleBase, strokeStyle?:number|string, fillStyle?:number|string, angle?:number, pivot?:IVector2D):IDrawEngine;
+    rectangle(rect:IRectangleBase|number[], strokeStyle?:number|string, fillStyle?:number|string, angle?:number, pivot?:IVector2D):IDrawEngine;
     resetClip():IDrawEngine;
     roundRectangle(
         rect:IRectangleBase,
@@ -47,9 +48,11 @@ export interface IDrawEngine {
         strokeStyle?:number|string,
         fillStyle?:number|string
     ):IDrawEngine;
+    save():IDrawEngine;
     selectRect(rect:IRectangleBase):IDrawEngine;
     selectRoundRect(rect:IRectangleBase, borderRadius:number):IDrawEngine;
     setUnit(unit:EPositionUnit):IDrawEngine;
+    start():IDrawEngine;
     startAnalyse(callback: (reason:string, props:any)=>void): IDrawEngine;
     stroke():IDrawEngine;
     text(
