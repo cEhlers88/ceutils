@@ -23,6 +23,7 @@ export interface IDrawEngine {
     getContext():CanvasRenderingContext2D;
     gradientLines(start:IVector2D, destinations:IVector2D[], colors:Array<IColor|string|number>, width?:number):IDrawEngine;
     removeDrawCondition():IDrawEngine;
+    restore():IDrawEngine;
     setContext(ctx:CanvasRenderingContext2D):IDrawEngine;
     setDrawCondition(condition:boolean):IDrawEngine;
     setFillStyle(fillStyle:number|string):IDrawEngine;
@@ -36,7 +37,7 @@ export interface IDrawEngine {
     grid (gridSize:number, strokeStyle:string, area?:IRectangleBase|undefined, angle?:number): IDrawEngine;
     hexagon(position:IVector2D, radius:number, strokeStyle?:number|string, fillStyle?:number|string, angle?:number): IDrawEngine
     image(canvas:HTMLCanvasElement, sourceRect:IRectangleBase, destinationRect?:IRectangleBase, angle?:number, pivot?:IVector2D):IDrawEngine;
-    lines(startPosition:IVector2D, destinations:IVector2D[], strokeStyle?:number|string, fillStyle?:number|string, lineWidth?:number): IDrawEngine;
+    lines(startPosition:IVector2D, destinations:IVector2D[], strokeStyle?:number|string, fillStyle?:number|string, lineWidth?:number, autoClose?:boolean): IDrawEngine;
     moveTo(position:IVector2D):IDrawEngine;
     ngon(position:IVector2D, radius:number, sides:number, strokeStyle?:number|string, fillStyle?:number|string, angle?:number):IDrawEngine;
     quadraticCurveTo(controlPoint:IVector2D, position:IVector2D):IDrawEngine;
@@ -52,7 +53,7 @@ export interface IDrawEngine {
     selectRect(rect:IRectangleBase):IDrawEngine;
     selectRoundRect(rect:IRectangleBase, borderRadius:number):IDrawEngine;
     setUnit(unit:EPositionUnit):IDrawEngine;
-    start():IDrawEngine;
+    start(name:string):IDrawEngine;
     startAnalyse(callback: (reason:string, props:any)=>void): IDrawEngine;
     stroke():IDrawEngine;
     text(

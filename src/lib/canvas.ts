@@ -8,7 +8,7 @@ import CanvasEngineAnalyzer from "../Analyzer/CanvasEngineAnalyzer";
 import Canvas2dDrawEngine from "../Engine/Canvas2dDrawEngine";
 import {IDrawEngine} from "../Interfaces/IDrawEngine";
 import { drawEngine2dMeta } from "./drawEngine2dMeta";
-const getDrawEngine = (canvas: HTMLCanvasElement, global:boolean = false): IDrawEngine => {
+const getDrawEngine = (canvas: HTMLCanvasElement|undefined=undefined, global:boolean = false): IDrawEngine => {
     let engine:IDrawEngine;
     if(global) {
         if(!window.__CE_CANVAS_DRAW_2D_ENGINE__) {
@@ -18,8 +18,10 @@ const getDrawEngine = (canvas: HTMLCanvasElement, global:boolean = false): IDraw
     }else{
         engine = new Canvas2dDrawEngine();
     }
-
-    return engine.setContext(canvas.getContext('2d')!);
+    if(canvas) {
+        engine.setContext(canvas.getContext('2d')!);
+    }
+    return engine;
 }
 const getDrawEngineAnalyzed = (canvas: HTMLCanvasElement, global: any = undefined):CanvasEngineAnalyzer => {
     return new CanvasEngineAnalyzer(canvas);

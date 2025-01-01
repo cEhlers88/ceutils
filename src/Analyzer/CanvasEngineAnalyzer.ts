@@ -1,26 +1,35 @@
 import Canvas2dDrawEngine from "../Engine/Canvas2dDrawEngine";
 import {EAnalyzeReason} from "../enum/EAnalyzeReason";
 import IVector2D from "../Interfaces/IVector2D";
+import * as domLib from "../lib/dom";
 import {drawEngine2dMeta} from "../lib/drawEngine2dMeta";
 
 export default class CanvasEngineAnalyzer extends Canvas2dDrawEngine {
     private _activeDebugPointer: boolean = false;
     private _analyzerStartedAt: number = -1;
     private _analyzerFinishedCheckTimeout: NodeJS.Timeout | undefined;
+    private _bodies: Array<Array<number|IVector2D>> = [];
     private _config: {
-        analyzingDepth: number;
+        _analyzingDepthReset: number;
+        _showBodies: boolean;
+        analyzingDepthMax: number;
+        analyzingDepthMin: number;
         checkForEndlessLoop: boolean;
         checkForStartTrigger: boolean;
         checkLoopEnd: boolean;
         useOnlyDebugPointer: boolean;
     } = {
-        analyzingDepth: 0,
+        _analyzingDepthReset: -1, // internal managed
+        _showBodies: false,
+        analyzingDepthMax: 0, // 0 = root method only, -1 = no limit
+        analyzingDepthMin: 0,
         checkForEndlessLoop: true,
         checkForStartTrigger: true,
         checkLoopEnd: true,
         useOnlyDebugPointer: true
     };
     private _detailPointers: number[][] = [];
+    private _flgDebugDraw: boolean = false;
     private _listener?: (reason: EAnalyzeReason, props: {}) => void;
     private _methodStack: Array<{
         arguments: any[];
@@ -31,8 +40,15 @@ export default class CanvasEngineAnalyzer extends Canvas2dDrawEngine {
         methodName: string;
         startTime: number;
     }> = [];
+    private _mousePosition: IVector2D = {x: 0, y: 0};
     constructor(canvas: HTMLCanvasElement, listener?: (reason: EAnalyzeReason, props: {}) => void) {
         super();
+        canvas.addEventListener('mousemove', (e) => {
+            this._mousePosition = {
+                x: e.offsetX,
+                y: e.offsetY
+            };
+        });
         this.setContext(canvas.getContext('2d')!);
 
         this._wrapParentMethods();
@@ -46,10 +62,13 @@ export default class CanvasEngineAnalyzer extends Canvas2dDrawEngine {
         methodName: string,
         startTime?: number,
     }): void {
+        if(this._flgDebugDraw){ return ;}
         const additionalInfos: {
-            depth: number
+            depth: number,
+            rootPosition: number
         } = {
-            depth: -1
+            depth: -1,
+            rootPosition: this._rootPosition
         };
         let _ignore = false;
 
@@ -67,7 +86,7 @@ export default class CanvasEngineAnalyzer extends Canvas2dDrawEngine {
                 });
 
                 if(props.methodName !== 'start') {
-                    _ignore = !((this._config.analyzingDepth < 0 || additionalInfos.depth <= this._config.analyzingDepth) &&
+                    _ignore = !((this._config.analyzingDepthMax < 0 || additionalInfos.depth <= this._config.analyzingDepthMax) &&
                         (!this._config.useOnlyDebugPointer || this._activeDebugPointer)
                     );
                 }
@@ -80,12 +99,46 @@ export default class CanvasEngineAnalyzer extends Canvas2dDrawEngine {
                 if (!method || method.methodName !== props.methodName) {
                     throw new Error('Method stack is not in sync');
                 }else if(method.methodName !== 'start') {
-                    _ignore = !((this._config.analyzingDepth < 0 || additionalInfos.depth <= this._config.analyzingDepth) &&
+                    _ignore = !((this._config.analyzingDepthMax < 0 || additionalInfos.depth <= this._config.analyzingDepthMax) &&
                         (!this._config.useOnlyDebugPointer || this._activeDebugPointer)
                     );
                 }else{
-                    _ignore = !this._config.useOnlyDebugPointer;
+                    _ignore = true;
+                    this._handleStartEnd(performance.now());
                 }
+
+                this._flgDebugDraw = true; // !important
+                this._bodies.map((bodyDef) => {
+                    switch (bodyDef[0]) {
+                        case 0:
+                            bodyDef.shift();
+                            const pos = bodyDef.shift() as IVector2D;
+
+                            this.lines(pos, [...(bodyDef as IVector2D[])], '#ff000000',-1, 3);
+
+                            [pos,...bodyDef].map((v) => {
+                                const mouseDistance = this._getMouseDistance(v as IVector2D);
+                                if(mouseDistance > 50){
+                                    return;
+                                }
+                                this
+                                    .image(this._positionInfoLabel(),
+                                        {x:0,y:(mouseDistance<10?70:0),width:100,height:70},
+                                        {x:(v as IVector2D).x-30,y:(v as IVector2D).y-35,width:60,height:30}
+                                    )
+                                ;
+                            });
+
+                            break;
+                        case 1:
+                            this.circle(bodyDef[1] as IVector2D, bodyDef[2] as number, 'red', -1);
+                            break;
+                    }
+                });
+
+                this._bodies = [];
+                this._flgDebugDraw = false; // !important
+
                 break;
             case EAnalyzeReason.METHOD_ERROR:
                 this._methodStack[this._methodStack.length - 1].errors.push({
@@ -112,19 +165,48 @@ export default class CanvasEngineAnalyzer extends Canvas2dDrawEngine {
         this._listener = listener;
         return this;
     }
-    public start(): CanvasEngineAnalyzer {
-        super.start();
+
+    public start(name:string = ''): CanvasEngineAnalyzer {
+        super.start(name);
         this._analyzerStartedAt = performance.now();
+
         return this;
     }
-    public startDebug(): CanvasEngineAnalyzer {
+    public startDebug(debugOptions:{
+        depth?: number;
+        showBodies?: boolean;
+    }={}): CanvasEngineAnalyzer {
+        if(this._analyzerStartedAt === -1){
+            this.start();
+        }
+
+        if(debugOptions.depth){
+            this._config._analyzingDepthReset = this._config.analyzingDepthMax;
+            this._config.analyzingDepthMax = debugOptions.depth;
+        }
+
         this._activeDebugPointer = true;
         return this;
     }
     public stopDebug(): CanvasEngineAnalyzer {
         this._activeDebugPointer = false;
+        this._config.analyzingDepthMax = this._config._analyzingDepthReset;
+        this._config._showBodies = false;
+
         return this;
     }
+    protected handleMethodDetails(details: any) {
+        if(this._flgDebugDraw){ return ;}
+
+        if(this._listener){
+            this._listener(EAnalyzeReason.RECEIVED_DETAILS, details);
+        }
+
+        if(details.body){
+            this._bodies.push(details.body);
+        }
+    }
+
     private _doSelfCheck(): void {
         const _now:number = performance.now();
 
@@ -137,11 +219,30 @@ export default class CanvasEngineAnalyzer extends Canvas2dDrawEngine {
         if(this._config.checkLoopEnd && this._methodStack.length === 0) {
             clearTimeout(this._analyzerFinishedCheckTimeout);
             this._analyzerFinishedCheckTimeout = setTimeout(() => {
-                if(this._listener){
-                    this._listener(EAnalyzeReason.METHOD_END, {methodName: 'start', endTime: _now, duration: _now - this._analyzerStartedAt});
-                }
+                this._handleStartEnd(_now);
             }, 100);
         }
+    }
+    private _getMouseDistance(point:IVector2D): number {
+        return Math.sqrt(Math.pow(point.x - this._mousePosition.x, 2) + Math.pow(point.y - this._mousePosition.y, 2));
+    }
+    private _handleStartEnd(endTime:number){
+        if(this._listener){
+            this._listener(EAnalyzeReason.METHOD_END, {methodName: 'start', endTime, duration: endTime - this._analyzerStartedAt});
+        }
+    }
+    private _positionInfoLabel(): HTMLCanvasElement {
+        const buffer = domLib.createElement('canvas', {width: '100px', height: '140px'}) as HTMLCanvasElement;
+        const ctx = buffer.getContext('2d')!;
+
+        new Canvas2dDrawEngine()
+            .setContext(ctx)
+            .rectangle([0, 0, 100, 70], 'black', 'white')
+            .rectangle([0, 70, 100, 70], 'black', 'red')
+        ;
+
+        this._positionInfoLabel = () => buffer;
+        return buffer;
     }
     private _wrapParentMethods(): void {
         const parentPrototype = Object.getPrototypeOf(this);

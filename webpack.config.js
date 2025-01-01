@@ -2,12 +2,6 @@ const path = require('path');
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = (env, argv) => {
-    console.log({
-        index: './src/index.ts',
-        canvasLib: './src/lib/canvas.ts',
-        domLib: './src/lib/dom.ts',
-        ...(argv.mode === 'production' ? {lala:'./src/dev.ts'} : { dev: './src/dev.ts' })
-    });
     return {
         mode: argv.mode === 'production' ? 'production' : 'development',
         entry: {
@@ -24,8 +18,8 @@ module.exports = (env, argv) => {
                     exclude: [/node_modules/, /\.d\.ts$/],
                 },
                 {
-                    test: /\.css$/i,
-                    use: ["style-loader", "css-loader"],
+                    test: /\.scss$/i,
+                    use: ["style-loader", "css-loader", "sass-loader"],
                 },
             ],
         },

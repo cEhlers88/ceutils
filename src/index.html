@@ -6,7 +6,86 @@
         <script src="../dev.js"></script>
         <script type="application/javascript">
             let counter = 0;
+            let counterLong = 0;
+            let _exampleViewIndex = [];
+            let _exampleViewIndexMax = [];
+            let _needRepaint = true;
+            const _updateJobs = [
+
+            ];
+            const _run = () => {
+                counter++;
+                counterLong+=.1;
+                if(_needRepaint){
+                    _needRepaint = false;
+                    _updateJobs.map(v=>v());
+                }
+
+                if(counter > 300){
+                    _exampleViewIndex = _exampleViewIndex.map((i, key)=> {
+                        return i=i+1;
+                    });
+                    _needRepaint = true;
+                    counter = 0;
+                }
+
+
+                const canvas = document.getElementsByTagName('canvas')[0];
+                const drawEngine = window.ceutils.canvasLib.getDrawEngineAnalyzed(canvas);
+                drawEngine
+                    .setContext(canvas.getContext('2d'))
+                    .cls()
+                    .grid(50,'red') // create a 50x50px grid
+                    .cube3d({x:100,y:100,"height":100,"width":100},100,{"x":0,"y":0,"z":0},"green",-1,{"x":0.5,"y":0.5,"z":0.5})
+                    .cube3d({x:300,y:100,"height":100,"width":100, z:400},100,{"x":0,"y":0,"z":0},"blue",-1,{"x":0.5,"y":0.5,"z":0.5})
+                    .circle({x:100,y:100},5,'green',-1) // draw a circle at 100,100 with a radius of 5 and green line color
+                ;
+
+
+                requestAnimationFrame(_run);
+            }
+
             window.addEventListener('DOMContentLoaded',()=>{
+                const dynamicExamplesContainer = document.querySelector('.dynamic-examples');
+
+                Object.keys(window.ceutils.canvasLib.drawEngine2dMeta).map(methodName=>{
+                    const metaInfo = window.ceutils.canvasLib.drawEngine2dMeta[methodName];
+                    if(metaInfo.hasStandAloneView){
+                        const _currentViewIndexKey = _exampleViewIndex.length;
+                        const _exampleContainer = window.ceutils.buildExampleContainer({
+                            title: "drawEngine." + methodName + "(...)",
+                        });
+                        dynamicExamplesContainer.appendChild(_exampleContainer.container);
+
+                        _exampleViewIndex.push(0);
+                        const drawEngine = window.ceutils.canvasLib.getDrawEngineAnalyzed(_exampleContainer.canvas);
+
+                        _exampleContainer.canvas.addEventListener('mousemove',()=>{
+                            _needRepaint = true;
+                        });
+
+                        _updateJobs.push(()=>{
+                            const _exampleProps = metaInfo.props.map(p=>{
+                                if(_exampleViewIndex[_currentViewIndexKey] > p.examples.length-1){
+                                    _exampleViewIndex[_currentViewIndexKey] = 0;
+                                }
+                                return p.examples[_exampleViewIndex[_currentViewIndexKey]];
+                            });
+                            _exampleContainer.currentProps = _exampleProps;
+                            drawEngine
+                                .setContext(_exampleContainer.context)
+                                .cls()[methodName](..._exampleProps)
+                                //.rectangle([50,50,50,50],'red',-1)
+                            ;
+                        });
+                    }
+                });
+
+                _run();
+
+                /*
+
+
                 let angleX = 0;
                 let angleY = 0;
                 let angleZ = 0;
@@ -16,7 +95,7 @@
                 const canvas = document.getElementsByTagName('canvas')[0];
                 const drawEngine = window.ceutils.canvasLib.getDrawEngineAnalyzed(canvas);
                 drawEngine.setAnalyticListener((reason, props)=>{
-                    console.log(reason, props);
+                    //console.log(reason, props);
                 });
 
                 const draw = () => {
@@ -24,7 +103,7 @@
                         .start()
                         .cls()
                         .startDebug()
-                        /*.cube3d({
+                        .cube3d({
                             x: 100,
                             y: 100,
                             width: 50,
@@ -36,6 +115,7 @@
                             y: .5,
                             z: 0.5
                         })
+                        //.stopDebug()
                         .cube3d({
                             x: 300,
                             y: 100,
@@ -60,30 +140,31 @@
                             y: .5,
                             z: 0.5
                         })
-                        .cube3d({
-                            x: 600,
-                            y: 100,
-                            width: 50,
-                            height: 50,
-                        },50, [[45,0,45],[0,counter,0]],'black',
-                          //  [-1,-1,-1,'gray',-1,-1,-1]
-                            'red'
-                        ,{
-                            x: 0.5,
-                            y: .5,
-                            z: 0.5
-                        })
                         .lines({x:125,y:50},[{x:125,y:200}],'green')
                         .lines({x:325,y:50},[{x:325,y:200}],'green')
                         .lines({x:525,y:50},[{x:525,y:200}],'green')
-                        .lines({x:50,y:125},[{x:600,y:125}],'green')*/
-                        .hexagon({x:250,y:100},50,'black',-1,counter)
-                        .rectangle([200,50,100,100],'black')
+                        .lines({x:50,y:125},[{x:600,y:125}],'green')
+                        .rectangle([200,50,100,100],'white',-1,-counter)
+
+                        .cube3d({
+                                x: 600,
+                                y: 100,
+                                width: 150,
+                                height: 150,
+                            },50, [[45,0,45],[0,counter,0]],'black',
+                            //  [-1,-1,-1,'gray',-1,-1,-1]
+                            'red'
+                            ,{
+                                x: 0.5,
+                                y: .5,
+                                z: 0.5
+                            })
                         .stopDebug()
+                        .ngon({x:250,y:100},50,3,'white',-1,counter)
                     ;
                 }
                 const update = () => {
-                    counter += 1;
+                    counter += .02;
                     angleX += angleXMove;
                     angleY += angleYMove;
                     angleZ += angleZMove;
@@ -104,11 +185,12 @@
                     requestAnimationFrame(loop);
                 }
 
-                loop();
+                loop();*/
             });
         </script>
     </head>
     <body>
-        <canvas width="1000" height="1000"></canvas>
+        <canvas width="500" height="500"></canvas>
+        <div class="dynamic-examples"></div>
     </body>
 </html>

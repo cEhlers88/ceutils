@@ -10,12 +10,12 @@ export interface ICreateElementProperties extends IMagicProperties {
   alt?: string;
   data?: { [name: string]: any };
   class?: string;
-  height?: string;
+  height?: number|string;
   href?: string;
   id?: string;
   placeholder?: string;
   src?: string;
   rel?: string;
-  width?: string;
+  width?: number|string;
   [name: string]: any;
 }

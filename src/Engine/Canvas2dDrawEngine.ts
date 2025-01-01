@@ -3,6 +3,7 @@
  */
 
 import {EPositionUnit} from "../enum/EPositionUnit";
+import Cube3d from "../Geometry/Cube3d";
 import {IColor} from "../Interfaces/IColor";
 import {IDrawEngine} from "../Interfaces/IDrawEngine";
 import IRectangle from "../Interfaces/IRectangle";
@@ -21,7 +22,10 @@ enum eDrawEngineMode {
     analytic = 'analytic',
     simple = 'simple',
 }
-
+enum EBodyType {
+    NGON,
+    CIRCLE,
+}
 export default class Canvas2dDrawEngine implements IDrawEngine{
     public static USE_GLOBAL_COLOR = -26071988;
     protected _rootPosition:number=-1;
@@ -77,7 +81,7 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
      * @param {IRectangleBase|IRectangleBase[]} rect - The rectangle(s) to clip. Can be a single rectangle or an array of rectangles.
      * @param {number} radius - The radius of the rounded corners.
      *
-     * @returns {DrawEngine} - The DrawEngine object for method chaining.
+     * @returns {IDrawEngine} - The DrawEngine object for method chaining.
      */
     public clipRoundRect(rect: IRectangleBase|IRectangleBase[], radius:number): IDrawEngine {
         if(!this._drawCondition){return this;}
@@ -109,7 +113,7 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
     /**
      * Clears the canvas if the draw condition is true.
      *
-     * @return {DrawEngine} - The current instance of the DrawEngine.
+     * @return {IDrawEngine} - The current instance of the DrawEngine.
      */
     public cls():IDrawEngine{
         if(!this._drawCondition){return this;}
@@ -120,7 +124,7 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
      * Fills the current drawing path on the canvas using the specified fill rule.
      *
      * @param {CanvasFillRule|undefined} fillRule - The fill rule to be applied. Can be either "nonzero" or "evenodd". If not specified, the default fill rule is used.
-     * @returns {DrawEngine} - The DrawEngine instance for method chaining.
+     * @returns {IDrawEngine} - The DrawEngine instance for method chaining.
      */
     public fill(fillRule:CanvasFillRule|undefined): IDrawEngine {
         if(!this._drawCondition){return this;}
@@ -138,7 +142,7 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
     /**
      * Resets the clipping region of the DrawEngine.
      *
-     * @return {DrawEngine} - The DrawEngine instance.
+     * @return {IDrawEngine} - The DrawEngine instance.
      */
     public resetClip(): IDrawEngine {
         if(!this._drawCondition){return this;}
@@ -148,7 +152,7 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
     /**
      * Removes the draw condition for the DrawEngine.
      *
-     * @return {DrawEngine} The modified DrawEngine object.
+     * @return {IDrawEngine} The modified DrawEngine object.
      */
     public removeDrawCondition(): IDrawEngine {
         this._drawCondition = true;
@@ -168,10 +172,10 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
      * Selects a rectangle on the canvas.
      *
      * @param {IRectangleBase} rect - The rectangle object containing the coordinates and dimensions of the rectangle to be selected.
-     * @returns {DrawEngine} - The current instance of the DrawEngine.
+     * @returns {IDrawEngine} - The current instance of the DrawEngine.
      */
     public selectRect(rect: IRectangleBase): IDrawEngine {
-        const body = [rect.x, rect.y, rect.width, rect.height];
+        if(!this._drawCondition){return this;}
         this._selectRect(this._convertToAbsolutePixels(rect) as IRectangleBase);
         return this;
     }
@@ -180,12 +184,18 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
      *
      * @param {IRectangleBase} rect - The rectangle object containing the position and dimensions of the rounded rectangle.
      * @param {number} borderRadius - The radius of the border corners of the rounded rectangle.
-     * @returns {DrawEngine} - The DrawEngine instance for method chaining.
+     * @returns {IDrawEngine} - The DrawEngine instance for method chaining.
      */
     public selectRoundRect(rect: IRectangleBase, borderRadius:number): IDrawEngine {
-        const body = [rect.x, rect.y, rect.width, rect.height];
-        // this._handleMethodStart('selectRoundRect', {rect, borderRadius, _propsOrder:['rect', 'borderRadius'], body});
         if(!this._drawCondition){return this;}
+        this.handleMethodDetails({
+            body: [EBodyType.NGON,
+                {x:rect.x,y:rect.y},
+                {x:rect.x+rect.width,y:rect.y},
+                {x:rect.x+rect.width,y:rect.y+rect.height},
+                {x:rect.x,y:rect.y+rect.height}
+            ],
+        });
         const _radius = {tl: borderRadius, tr: borderRadius, br: borderRadius, bl: borderRadius};
 
         this.ctx!.moveTo(rect.x + _radius.tl, rect.y);
@@ -205,11 +215,17 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
      * Sets the context for drawing on a canvas.
      *
      * @param {CanvasRenderingContext2D} ctx - The 2D rendering context of the canvas.
-     * @return {DrawEngine} - The DrawEngine instance with the updated context.
+     * @return {IDrawEngine} - The DrawEngine instance with the updated context.
      */
     public setContext(ctx:CanvasRenderingContext2D):IDrawEngine {
         // this._handleMethodStart('setContext', {ctx, _propsOrder:['ctx']});
         this.ctx = ctx;
+
+        this.ctx.lineWidth = .5;
+        this.ctx.lineCap = 'butt';
+        this.ctx.lineJoin = 'miter';
+        this.ctx.globalAlpha = 1.0;
+
         // this._handleMethodEnd('setContext', undefined);
         return this;
     }
@@ -266,7 +282,7 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
      *
      * @param {string} font - The font to set. Must be a valid CSS font value.
      *
-     * @return {DrawEngine} - The DrawEngine instance with the updated font.
+     * @return {IDrawEngine} - The DrawEngine instance with the updated font.
      */
     public setFont(font:string):IDrawEngine {
         // this._handleMethodStart('setFont', {font, _propsOrder:['font']});
@@ -278,7 +294,7 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
      * Sets the global composite operation state of the DrawEngine.
      *
      * @param {GlobalCompositeOperation} newState - The new state to set for the global composite operation.
-     * @return {DrawEngine} - The updated DrawEngine instance.
+     * @return {IDrawEngine} - The updated DrawEngine instance.
      */
     public setGlobalCompositeOperation(newState: GlobalCompositeOperation): IDrawEngine {
         // this._handleMethodStart('setGlobalCompositeOperation', {newState, _propsOrder:['newState']});
@@ -306,10 +322,10 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
      * @param {number} radius - The radius of the circle.
      * @param {number|string} [strokeStyle=-1] - The stroke style of the circle.
      * @param {number|string} [fillStyle=-1] - The fill style of the circle.
-     * @returns {DrawEngine} - The DrawEngine instance.
+     * @returns {IDrawEngine} - The DrawEngine instance.
      */
     public circle(position:IVector2D, radius:number, strokeStyle:number|string=-1, fillStyle:number|string=-1): IDrawEngine{
-        const body = [position.x - radius, position.y - radius, position.x + radius, position.y + radius];
+        // const body = [position.x - radius, position.y - radius, position.x + radius, position.y + radius];
         // this._handleMethodStart('circle', {position, radius, strokeStyle, fillStyle, _propsOrder:['position', 'radius', 'strokeStyle', 'fillStyle'], body});
         if(!this._drawCondition){return this;}
         position = this._convertToAbsolutePixels(position) as IVector2D;
@@ -341,7 +357,7 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
         strokeStyle: number | string = -1,
         fillStyle: number | string | number[] | string[] = -1
     ): IDrawEngine {
-        const body = [planeRect.x, planeRect.y, planeRect.width, planeRect.height];
+        // const body = [planeRect.x, planeRect.y, planeRect.width, planeRect.height];
         if (!this._drawCondition) { return this; }
 
         depth = depth === -1 ? planeRect.width / 2 : depth;
@@ -404,25 +420,45 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
      * Draws a 3D cube on the canvas.
      * The cube is drawn in 3D space with perspective projection.
      *
-     * @param {IRectangleBase} planeRect - The rectangle object containing the position and dimensions of the plane of the cube.
+     * @param {IRectangleBase&{z?:number}} planeRect - The rectangle object containing the position and dimensions of the plane of the cube.
      * @param {number} [depth=-1] - The depth of the cube. Default is -1.
-     * @param {IVector3D|IVector3D[]|number[]|number[][]} [angles={x:0, y:0, z:30}] - The angles of the cube in degrees. Default is {x:0, y:0, z:30}
+     * @param {IVector3D|IVector3D[]|number[]|number[][]} [angles={x:0, y:0, z:0}] - The angles of the cube in degrees. Default is {x:0, y:0, z:30}
      * @param {number|string} [strokeStyle=-1] - The stroke style of the cube. Default is -1.
      * @param {number|string|number[]|string[]} [fillStyle=-1] - The fill style of the cube. Default is -1.
      * @param {IVector3D} [pivot={x:0.5, y:0.5, z:0.5}] - The pivot point of the cube. Default is {x:0.5, y:0.5, z:0.5}.
      * @returns {IDrawEngine} - The DrawEngine instance for method chaining.
      */
     public cube3d(
-        planeRect: IRectangleBase,
+        planeRect: IRectangleBase&{z?:number},
         depth: number = -1,
-        angles: IVector3D | IVector3D[] | number[] | number[][] = { x: 0, y: 0, z: 30 },
+        angles: IVector3D | IVector3D[] | number[] | number[][] = { x: 0, y: 0, z: 0 },
         strokeStyle: number | string = -1,
         fillStyle: number | string | number[] | string[] = -1,
         pivot: IVector3D = { x: 0.5, y: 0.5, z: 0.5 }
     ): IDrawEngine {
-        const body = [planeRect.x, planeRect.y, planeRect.width, planeRect.height];
         if (!this._drawCondition) { return this; }
 
+        const cube = new Cube3d().configure({
+            fillStyle,
+            pivot,
+            position: {
+                x: planeRect.x + planeRect.width / 2,
+                y: planeRect.y + planeRect.height / 2,
+                z: planeRect.z || 0
+            },
+            rotation: angles,
+            size: {
+                x: planeRect.width,
+                y: planeRect.height,
+                z: depth
+            },
+            strokeStyle
+        }).draw(this.ctx!);
+
+        this.handleMethodDetails({body:cube.getBody()});
+
+        return this;
+        /*
         depth = depth === -1 ? planeRect.width / 2 : depth;
 
         const centerX = planeRect.x + planeRect.width / 2;
@@ -430,9 +466,9 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
         const centerZ = depth / 2;
 
         const pivot3D = {
-            x: (pivot.x - 0.5) * planeRect.width,
-            y: (pivot.y - 0.5) * planeRect.height,
-            z: (pivot.z - 0.5) * depth
+            x: (pivot.x - 0.5), //* planeRect.width,
+            y: (pivot.y - 0.5), //* planeRect.height,
+            z: 1000//(pivot.z - 0.5) * depth
         };
 
         const vertices = [
@@ -474,7 +510,7 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
 
         let transformedVertices = vertices;
 
-        this._convertToVector3D(angles).map(rotation => {
+        this._convertToIVector3D(angles).map(rotation => {
             transformedVertices = transformedVertices.map(v => {
                 const relativeVertex = {
                     x: v.x - pivot3D.x,
@@ -535,12 +571,12 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
                     -1
                 );
             }
-        });
+        });*/
 
         return this;
     }
 
-    public start(): IDrawEngine {
+    public start(name:string=''): IDrawEngine {
         this._rootPosition = -1;
         return this;
     }
@@ -577,14 +613,12 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
      * @param {IVector2D[]} destinations - An array of points that represent the destinations of the lines.
      * @param {(IColor | string | number)[]} colors - An array of colors to create the gradient with.
      * @param {number} [width=1] - The width of the lines to be drawn.
-     * @returns {DrawEngine} The DrawEngine instance for method chaining.
+     * @returns {IDrawEngine} The DrawEngine instance for method chaining.
      */
     public gradientLines(start: IVector2D, destinations: IVector2D[], colors: Array<IColor | string | number>, width: number = 1): IDrawEngine {
-        // this._handleMethodStart('gradientLines', {start, destinations, colors, width, _propsOrder:['start', 'destinations', 'colors', 'width']});
         start = this._convertToAbsolutePixels(start) as IVector2D;
         destinations = destinations.map(d=>this._convertToAbsolutePixels(d) as IVector2D);
         const ctx = this.ctx!;
-        // Gesamtlänge des Pfades berechnen
         let totalLength = 0;
         let currentPoint = start;
         for (const destination of destinations) {
@@ -603,16 +637,15 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
         // Den Farbverlauf als Strichstil verwenden und Linien zeichnen
         ctx.strokeStyle = gradient;
         ctx.lineWidth = width;
-        currentPoint = start;
+
         ctx.beginPath();
         ctx.moveTo(start.x, start.y);
         for (const destination of destinations) {
             ctx.lineTo(destination.x, destination.y);
-            currentPoint = destination;
         }
         ctx.stroke();
         ctx.strokeStyle = resetStrokeStyle;
-        // this._handleMethodEnd('gradientLines', undefined);
+
         return this;
     }
     /**
@@ -622,7 +655,7 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
      * @param {string} strokeStyle - The style of the grid lines.
      * @param {IRectangle} [area=undefined] - The area in which to draw the grid.
      * @param {number} [angle=0] - The rotation angle of the grid lines in degrees.
-     * @returns {DrawEngine} - The DrawEngine instance.
+     * @returns {IDrawEngine} - The DrawEngine instance.
      */
     // tslint:disable-next-line:no-unnecessary-initializer
     public grid (gridSize:number, strokeStyle:string, area:IRectangle|undefined=undefined, angle:number=0): IDrawEngine{
@@ -693,34 +726,33 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
      * @param {number|string} [fillStyle=-1] - The fill style to be used for the line.
      *                                         If set to -1, no fill will be applied.
      * @param {number} [lineWidth=0.5] - The line width.
-     *
+     * @param {boolean} [autoClose=true] - If true, the line will be automatically closed.
      * @returns {IDrawEngine} Returns the DrawEngine instance for method chaining.
      */
-    public lines(startPosition:IVector2D, destinations:IVector2D[], strokeStyle:number|string=-1, fillStyle:number|string=-1, lineWidth:number=.5): IDrawEngine {
+    public lines(startPosition:IVector2D, destinations:IVector2D[], strokeStyle:number|string=-1, fillStyle:number|string=-1, lineWidth:number=-1, autoClose:boolean=true): IDrawEngine {
         if(!this._drawCondition){return this;}
         startPosition = this._convertToAbsolutePixels(startPosition) as IVector2D;
         destinations = destinations.map(d=>this._convertToAbsolutePixels(d) as IVector2D);
-        this.ctx!.beginPath();
-        this.ctx!.lineWidth = lineWidth;
+
+        this.save();
+        this.beginPath();
+        if(lineWidth!==-1){
+            this.ctx!.lineWidth = lineWidth;
+        }
         this.ctx!.moveTo(startPosition.x,startPosition.y);
         destinations.map(point=>{
             this.ctx!.lineTo(point.x, point.y);
         });
-
+        if(autoClose){
+            this.closePath();
+        }
         if(strokeStyle!==-1){
-            const resetStrokeStyle = this.ctx!.strokeStyle;
-            this.ctx!.strokeStyle = strokeStyle.toString();
-            this.ctx!.stroke();
-            this.ctx!.strokeStyle = resetStrokeStyle;
+            this._stroke(strokeStyle);
         }
         if(fillStyle!==-1){
-            const resetFillStyle = this.ctx!.fillStyle;
-            this.ctx!.fillStyle = fillStyle.toString();
-            this.ctx!.closePath();
-            this.ctx!.fill();
-            this.ctx!.fillStyle = resetFillStyle;
+            this._fill(fillStyle);
         }
-        return this;
+        return this.restore();
     }
     /**
      * Moves the current drawing position to a new position.
@@ -763,13 +795,9 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
             positions.push({x, y});
         }
 
-        this
-            .save()
-            .lines(positions.shift()!,positions,strokeStyle,fillStyle);
+        this.handleMethodDetails({body:[EBodyType.NGON,...positions]});
 
-        this.ctx!.restore();
-
-        return this;
+        return this.lines(positions.shift()!,positions,strokeStyle,fillStyle);
     }
 
     /**
@@ -800,35 +828,49 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
      *
      * @returns {IDrawEngine} - The DrawEngine object for method chaining.
      */
-    public rectangle(rect:IRectangleBase|number[], strokeStyle:number|string='-1', fillStyle:number|string='-1', angle:number=0, pivot:IVector2D={x:.5,y:.5}):IDrawEngine {
-        // const body = [rect.x, rect.y, rect.width, rect.height];
-        // this._handleMethodStart('rectangle', {rect, strokeStyle, fillStyle, angle, pivot, _propsOrder:['rect', 'strokeStyle', 'fillStyle', 'angle', 'pivot'], body});
-        if(!this._drawCondition){return this;}
+    public rectangle(rect: IRectangleBase | number[], strokeStyle: number | string = '-1', fillStyle: number | string = '-1', angle: number = 0, pivot: IVector2D = { x: 0.5, y: 0.5 }): IDrawEngine {
+        if (!this._drawCondition) {return this;}
 
         rect = this._convertToAbsolutePixels(rect) as IRectangleBase;
 
-        if(angle!==0){
-            this.ctx!.save();
-            this.ctx!.translate((rect.x+(rect.width*pivot.x)), rect.y+(rect.height*pivot.y));
-            this.ctx!.rotate(angle * Math.PI / 180);
-            this.ctx!.translate(-rect.x-(rect.width*pivot.x), -rect.y-(rect.height*pivot.y));
-        }
+        const angleRad = angle * Math.PI / 180;
+        const pivotX = rect.x + rect.width * pivot.x;
+        const pivotY = rect.y + rect.height * pivot.y;
 
-        (this.beginPath() as any)
-            ._selectRect(rect)
-            .closePath()
-        ;
+        const corners = [
+            { x: rect.x, y: rect.y },
+            { x: rect.x + rect.width, y: rect.y },
+            { x: rect.x + rect.width, y: rect.y + rect.height },
+            { x: rect.x, y: rect.y + rect.height },
+        ].map(({ x, y }) => {
+            const dx = x - pivotX;
+            const dy = y - pivotY;
+            return {
+                x: Math.floor(pivotX + dx * Math.cos(angleRad) - dy * Math.sin(angleRad)),
+                y: Math.floor(pivotY + dx * Math.sin(angleRad) + dy * Math.cos(angleRad)),
+            };
+        });
+
+        this.handleMethodDetails({body: [EBodyType.NGON,...corners]});
+
+        this.save().beginPath();
+        this.ctx!.moveTo(corners[0].x, corners[0].y);
+        for (let i = 1; i < corners.length; i++) {
+            this.ctx!.lineTo(corners[i].x, corners[i].y);
+        }
+        this.ctx!.closePath();
 
         this._fill(fillStyle);
         this._stroke(strokeStyle);
-
-        if(angle!==0){
-            this.ctx!.restore();
-        }
-
-        // this._handleMethodEnd('rectangle', undefined);
+        this.restore();
         return this;
     }
+
+    public restore(): IDrawEngine {
+        this.ctx!.restore();
+        return this;
+    }
+
     /**
      * Draws a rounded rectangle on the canvas.
      *
@@ -939,7 +981,9 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
         // this._handleMethodEnd('text', undefined);
         return this;
     }
-
+    protected handleMethodDetails(details:any):void {
+        return;
+    }
     private _convertToAbsolutePixels(objectToCalculate:any):number|IVector2D|IRectangleBase {
         if(typeof objectToCalculate === 'number'){
             return objectToCalculate * this._positionUnitMultiplier().x;
@@ -971,7 +1015,7 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
             return updated ? result : objectToCalculate;
         }
     }
-    private _convertToVector3D(input: IVector3D | IVector3D[] | number[] | number[][]): IVector3D[] {
+    private _convertToIVector3D(input: IVector3D | IVector3D[] | number[] | number[][]): IVector3D[] {
         if (Array.isArray(input)) {
             if (Array.isArray(input[0])) {
                 return (input as number[][]).map(arr => ({ x: arr[0], y: arr[1], z: arr[2] }));
@@ -980,7 +1024,7 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
                 if (arr.length === 3) {
                     return [{ x: arr[0], y: arr[1], z: arr[2] }];
                 } else {
-                    throw new Error("Invalid array length for Vector3D conversion.");
+                    throw new Error("Invalid array length for IVector3D conversion.");
                 }
             } else {
                 return input as IVector3D[];
@@ -1104,6 +1148,15 @@ export default class Canvas2dDrawEngine implements IDrawEngine{
         return lines;
     }
     private _selectRect(absoluteRectInPx: IRectangleBase): IDrawEngine {
+        console.log('selectRect',absoluteRectInPx);
+        this.handleMethodDetails({
+            body: [EBodyType.NGON,
+                {x:absoluteRectInPx.x,y:absoluteRectInPx.y},
+                {x:absoluteRectInPx.x+absoluteRectInPx.width,y:absoluteRectInPx.y},
+                {x:absoluteRectInPx.x+absoluteRectInPx.width,y:absoluteRectInPx.y+absoluteRectInPx.height},
+                {x:absoluteRectInPx.x,y:absoluteRectInPx.y+absoluteRectInPx.height}
+            ],
+        });
         this.ctx!.rect(absoluteRectInPx.x,absoluteRectInPx.y,absoluteRectInPx.width,absoluteRectInPx.height);
         return this;
     }
