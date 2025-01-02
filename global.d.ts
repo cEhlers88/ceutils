@@ -7,7 +7,7 @@ declare global {
 
     // tslint:disable-next-line:interface-name
     interface Window {
-        __CE_CANVAS_DRAW_2D_ENGINE__?: IDrawEngine;
+        [name: string]: any;
     }
 }
 

@@ -8,27 +8,37 @@ import CanvasEngineAnalyzer from "../Analyzer/CanvasEngineAnalyzer";
 import Canvas2dDrawEngine from "../Engine/Canvas2dDrawEngine";
 import {IDrawEngine} from "../Interfaces/IDrawEngine";
 import { drawEngine2dMeta } from "./drawEngine2dMeta";
-const getDrawEngine = (canvas: HTMLCanvasElement|undefined=undefined, global:boolean = false): IDrawEngine => {
-    let engine:IDrawEngine;
-    if(global) {
-        if(!window.__CE_CANVAS_DRAW_2D_ENGINE__) {
-            window.__CE_CANVAS_DRAW_2D_ENGINE__ = new Canvas2dDrawEngine();
-        }
-        engine = window.__CE_CANVAS_DRAW_2D_ENGINE__;
-    }else{
-        engine = new Canvas2dDrawEngine();
-    }
-    if(canvas) {
-        engine.setContext(canvas.getContext('2d')!);
-    }
-    return engine;
-}
-const getDrawEngineAnalyzed = (canvas: HTMLCanvasElement, global: any = undefined):CanvasEngineAnalyzer => {
-    return new CanvasEngineAnalyzer(canvas);
-}
-export default {
+import Canvas3dDrawEngine from "../Engine/Canvas3dDrawEngine";
+
+const exportObj:{
+    [name:string]: any
+} = {
     DrawEngine2D: Canvas2dDrawEngine,
     drawEngine2dMeta,
-    getDrawEngine,
-    getDrawEngineAnalyzed
+    getDrawEngineAnalyzed: (canvas: HTMLCanvasElement, global: any = undefined):CanvasEngineAnalyzer => {
+        return new CanvasEngineAnalyzer(canvas);
+    }
 };
+
+[
+    {name: 'DrawEngine', class: Canvas2dDrawEngine, contextType: '2d'},
+    {name: 'DrawEngine3d', class: Canvas3dDrawEngine, contextType: 'webgl'}
+].map((item)=>{
+    exportObj['get'+item.name] = (canvas: HTMLCanvasElement|undefined=undefined, global:boolean = false): IDrawEngine => {
+        let engine:IDrawEngine;
+        if(global) {
+            if(!window['__CE_CANVAS_' + item.name + '__']) {
+                window['__CE_CANVAS_' + item.name + '__'] = new item.class();
+            }
+            engine = window['__CE_CANVAS_' + item.name + '__'];
+        }else{
+            engine = (new item.class() as IDrawEngine);
+        }
+        if(canvas) {
+            engine.setContext(canvas.getContext(item.contextType)!);
+        }
+        return engine;
+    }
+});
+
+export default exportObj;

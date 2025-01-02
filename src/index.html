@@ -16,7 +16,7 @@
             const _run = () => {
                 counter++;
                 counterLong+=.1;
-                if(_needRepaint){
+                if(_needRepaint && false){ // todo: remove false
                     _needRepaint = false;
                     _updateJobs.map(v=>v());
                 }
@@ -29,17 +29,26 @@
                     counter = 0;
                 }
 
+                [{
+                    getter: 'getDrawEngine',
+                },{
+                    getter: 'getDrawEngine3d',
+                }].map((def,i)=>{
+                    const canvas = document.getElementsByTagName('canvas')[i];
+                    const drawEngine = window.ceutils.canvasLib[def.getter](canvas);
+                    drawEngine
+                        .cls()
+                    ;
+                    for(let i = 0; i < 10; i++){
+                        drawEngine
+                            .circle({x:20+(45*i),y:100},20,'#ff0000')
+                        ;
+                    }
+                    drawEngine
+                        .circle({x:canvas.width-20,y:canvas.height-20},20,'#ff0000','#00ff00')
+                    ;
+                });
 
-                const canvas = document.getElementsByTagName('canvas')[0];
-                const drawEngine = window.ceutils.canvasLib.getDrawEngineAnalyzed(canvas);
-                drawEngine
-                    .setContext(canvas.getContext('2d'))
-                    .cls()
-                    .grid(50,'red') // create a 50x50px grid
-                    .cube3d({x:100,y:100,"height":100,"width":100},100,{"x":0,"y":0,"z":0},"green",-1,{"x":0.5,"y":0.5,"z":0.5})
-                    .cube3d({x:300,y:100,"height":100,"width":100, z:400},100,{"x":0,"y":0,"z":0},"blue",-1,{"x":0.5,"y":0.5,"z":0.5})
-                    .circle({x:100,y:100},5,'green',-1) // draw a circle at 100,100 with a radius of 5 and green line color
-                ;
 
 
                 requestAnimationFrame(_run);
@@ -190,6 +199,7 @@
         </script>
     </head>
     <body>
+        <canvas width="500" height="500"></canvas>
         <canvas width="500" height="500"></canvas>
         <div class="dynamic-examples"></div>
     </body>

@@ -20,11 +20,11 @@ export interface IDrawEngine {
     cls():IDrawEngine;
     cube(planeRect: IRectangleBase, depth?: number, angles?: { x:number, y:number, z:number }, strokeStyle?:number|string, fillStyle?:number|string|number[]|string[]): IDrawEngine;
     cube3d(planeRect: IRectangleBase, depth?: number, angles?: IVector3D|IVector3D[]|number[]|number[][], strokeStyle?:number|string, fillStyle?:number|string|number[]|string[], pivot?:IVector3D): IDrawEngine;
-    getContext():CanvasRenderingContext2D;
+    getContext():CanvasRenderingContext2D|any;
     gradientLines(start:IVector2D, destinations:IVector2D[], colors:Array<IColor|string|number>, width?:number):IDrawEngine;
     removeDrawCondition():IDrawEngine;
     restore():IDrawEngine;
-    setContext(ctx:CanvasRenderingContext2D):IDrawEngine;
+    setContext(ctx:CanvasRenderingContext2D|any):IDrawEngine;
     setDrawCondition(condition:boolean):IDrawEngine;
     setFillStyle(fillStyle:number|string):IDrawEngine;
     setFilter(filter:string):IDrawEngine;
