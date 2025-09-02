@@ -4,9 +4,68 @@
  */
 
 /**
- * Map of German umlauts and accented characters to ASCII equivalents
+ * Map of German umlauts and accented characters to ASCII equivalents for slugs (lowercase)
  */
-const ACCENT_MAP: { [key: string]: string } = {
+const SLUG_ACCENT_MAP: { [key: string]: string } = {
+  // German umlauts
+  ä: "ae",
+  ö: "oe",
+  ü: "ue",
+  Ä: "ae",
+  Ö: "oe",
+  Ü: "ue",
+  ß: "ss",
+  // Common accented characters
+  à: "a",
+  á: "a",
+  â: "a",
+  ã: "a",
+  å: "a",
+  À: "a",
+  Á: "a",
+  Â: "a",
+  Ã: "a",
+  Å: "a",
+  è: "e",
+  é: "e",
+  ê: "e",
+  ë: "e",
+  È: "e",
+  É: "e",
+  Ê: "e",
+  Ë: "e",
+  ì: "i",
+  í: "i",
+  î: "i",
+  ï: "i",
+  Ì: "i",
+  Í: "i",
+  Î: "i",
+  Ï: "i",
+  ò: "o",
+  ó: "o",
+  ô: "o",
+  õ: "o",
+  Ò: "o",
+  Ó: "o",
+  Ô: "o",
+  Õ: "o",
+  ù: "u",
+  ú: "u",
+  û: "u",
+  Ù: "u",
+  Ú: "u",
+  Û: "u",
+  ç: "c",
+  Ç: "c",
+  ñ: "n",
+  Ñ: "n"
+};
+
+/**
+ * Map of German umlauts and accented characters to ASCII equivalents for PSR names (preserve case)
+ */
+const PSR_ACCENT_MAP: { [key: string]: string } = {
   // German umlauts
   ä: "ae",
   ö: "oe",
@@ -63,14 +122,26 @@ const ACCENT_MAP: { [key: string]: string } = {
 };
 
 /**
- * Normalizes German umlauts and accented characters to ASCII equivalents
+ * Normalizes German umlauts and accented characters to ASCII equivalents for slugs
  * @param input - String to normalize
- * @returns String with umlauts and accents replaced by ASCII equivalents
+ * @returns String with umlauts and accents replaced by ASCII equivalents (lowercase)
  */
-function normalizeAccents(input: string): string {
+function normalizeAccentsForSlug(input: string): string {
   return input.replace(
     /[àáâãåèéêëìíîïòóôõùúûüçñäöüÄÖÜßÀÁÂÃÅÈÉÊËÌÍÎÏÒÓÔÕÙÚÛÇÑ]/g,
-    match => ACCENT_MAP[match] || match
+    match => SLUG_ACCENT_MAP[match] || match
+  );
+}
+
+/**
+ * Normalizes German umlauts and accented characters to ASCII equivalents for PSR names
+ * @param input - String to normalize
+ * @returns String with umlauts and accents replaced by ASCII equivalents (preserve case)
+ */
+function normalizeAccentsForPsr(input: string): string {
+  return input.replace(
+    /[àáâãåèéêëìíîïòóôõùúûüçñäöüÄÖÜßÀÁÂÃÅÈÉÊËÌÍÎÏÒÓÔÕÙÚÛÇÑ]/g,
+    match => PSR_ACCENT_MAP[match] || match
   );
 }
 
@@ -116,29 +187,34 @@ export function createSlug(input: string): string {
 
   let result = input;
 
-  // Normalize German umlauts and accented characters first
-  result = result.replace(
-    /[àáâãåèéêëìíîïòóôõùúûüçñäöüÄÖÜßÀÁÂÃÅÈÉÊËÌÍÎÏÒÓÔÕÙÚÛÇÑ]/g,
-    match => ACCENT_MAP[match] || match
-  );
+  // Normalize German umlauts and accented characters first (to lowercase)
+  result = normalizeAccentsForSlug(result);
 
+  // Convert to lowercase before processing camelCase to avoid mixed case issues
+  result = result.toLowerCase();
+
+  // Handle camelCase in the original input before normalization
+  let originalForCamelCase = input;
+  
   // Handle acronyms followed by words (HTTPServer → HTTP-Server)
-  result = result.replace(/([A-Z]{2,})([A-Z][a-z]+)/g, "$1-$2");
+  originalForCamelCase = originalForCamelCase.replace(/([A-Z]{2,})([A-Z][a-z]+)/g, "$1-$2");
 
   // Handle lowercase/digit followed by acronym (SpielnameTEST → Spielname-TEST)
-  result = result.replace(/([a-z0-9])([A-Z]{2,})/g, "$1-$2");
+  originalForCamelCase = originalForCamelCase.replace(/([a-z0-9])([A-Z]{2,})/g, "$1-$2");
 
   // Handle standard camelCase (spielName → spiel-Name)
-  result = result.replace(/([a-z0-9])([A-Z])/g, "$1-$2");
+  originalForCamelCase = originalForCamelCase.replace(/([a-z0-9])([A-Z])/g, "$1-$2");
+
+  // If camelCase processing changed the input, apply normalization to the processed version
+  if (originalForCamelCase !== input) {
+    result = normalizeAccentsForSlug(originalForCamelCase).toLowerCase();
+  }
 
   // Replace non-alphanumeric characters with hyphens
   result = result.replace(/[^a-zA-Z0-9-]/g, "-");
 
   // Collapse multiple hyphens into one
   result = result.replace(/-+/g, "-");
-
-  // Convert to lowercase
-  result = result.toLowerCase();
 
   // Trim leading and trailing hyphens
   result = result.replace(/^-+|-+$/g, "");
@@ -166,10 +242,10 @@ export function createPsrFolderName(input: string): string {
   }
 
   let result = input
-    // Normalize German umlauts and accented characters
+    // Normalize German umlauts and accented characters (preserve case)
     .replace(
       /[àáâãåèéêëìíîïòóôõùúûüçñäöüÄÖÜßÀÁÂÃÅÈÉÊËÌÍÎÏÒÓÔÕÙÚÛÇÑ]/g,
-      match => ACCENT_MAP[match] || match
+      match => PSR_ACCENT_MAP[match] || match
     )
     // Replace invalid characters with spaces
     .replace(/[^a-zA-Z0-9]/g, " ")
@@ -178,11 +254,6 @@ export function createPsrFolderName(input: string): string {
     .filter(word => word.length > 0)
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join("");
-
-  // If result starts with a digit, prefix with underscore
-  if (result.length > 0 && /^\d/.test(result)) {
-    result = "_" + result;
-  }
 
   return result;
 }

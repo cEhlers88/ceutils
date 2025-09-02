@@ -34,8 +34,8 @@ describe("createSlug", () => {
 
     test("should normalize uppercase umlauts", () => {
       expect(createSlug("CAFÉ")).toBe("cafe");
-      expect(createSlug("MÜLLER")).toBe("mue-ller"); // Umlauts create mixed case after normalization
-      expect(createSlug("GRÖSSE")).toBe("gr-oe-sse");
+      expect(createSlug("MÜLLER")).toBe("mueller");
+      expect(createSlug("GRÖSSE")).toBe("groesse");
     });
 
     test("should normalize ß character", () => {
@@ -201,10 +201,10 @@ describe("createPsrFolderName", () => {
       expect(createPsrFolderName("test123")).toBe("Test123");
     });
 
-    test("should prefix with underscore if starting with digit", () => {
-      expect(createPsrFolderName("123test")).toBe("_123test");
-      expect(createPsrFolderName("2nd version")).toBe("_2ndVersion");
-      expect(createPsrFolderName("0config")).toBe("_0config");
+    test("should handle names starting with digit", () => {
+      expect(createPsrFolderName("123test")).toBe("123test");
+      expect(createPsrFolderName("2nd version")).toBe("2ndVersion");
+      expect(createPsrFolderName("0config")).toBe("0config");
     });
 
     test("should handle mixed numbers and letters", () => {
