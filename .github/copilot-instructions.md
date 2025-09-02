@@ -4,6 +4,14 @@ ceutils is a TypeScript utility library providing DOM manipulation, 2D/3D canvas
 
 Always reference these instructions first and fallback to search or bash commands only when you encounter unexpected information that does not match the info here.
 
+## Branch Management
+
+**Important:** When creating new feature branches, always branch from the 'develop' branch, NOT from 'main'. The development workflow follows a git-flow pattern where:
+- `main` branch contains production-ready code
+- `develop` branch contains the latest development changes
+- Feature branches should be created from `develop` and merged back to `develop`
+- Use branch naming convention: `feature/description` or `fix/issue-number`
+
 ## Working Effectively
 
 Bootstrap, build, and test the repository:
