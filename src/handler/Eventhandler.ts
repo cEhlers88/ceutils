@@ -31,9 +31,9 @@ export default class {
         }
       );
     } else {
-      if(eventName==='error'){
-        throw new Error("Unhandled error: "+JSON.stringify(props));
-      }else{
+      if (eventName === "error") {
+        throw new Error("Unhandled error: " + JSON.stringify(props));
+      } else {
         this.handleError({ message: "Event " + eventName + " not found." });
       }
     }

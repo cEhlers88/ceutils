@@ -5,6 +5,6 @@
  * @author Christoph Ehlers <webmaster@c-ehlers.de>
  */
 export enum EPositionType {
-    absolute,
-    cameraRelative
+  absolute,
+  cameraRelative
 }

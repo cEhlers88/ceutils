@@ -6,7 +6,7 @@
  */
 import IPosition from "./IPosition";
 
-export default interface IRectangleBase extends IPosition{
-    height: number;
-    width: number;
+export default interface IRectangleBase extends IPosition {
+  height: number;
+  width: number;
 }
