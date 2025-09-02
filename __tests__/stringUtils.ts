@@ -1,4 +1,4 @@
-import { createSlug, createPsrFolderName } from "../src/lib/stringUtils";
+import { createSlug, pascalCase, snailCase } from "../src/lib/stringUtils";
 
 describe("createSlug", () => {
   describe("Basic functionality", () => {
@@ -127,124 +127,270 @@ describe("createSlug", () => {
   });
 });
 
-describe("createPsrFolderName", () => {
+describe("pascalCase", () => {
   describe("Basic functionality", () => {
     test("should return empty string for empty input", () => {
-      expect(createPsrFolderName("")).toBe("");
+      expect(pascalCase("")).toBe("");
     });
 
     test("should return empty string for null/undefined input", () => {
       // @ts-ignore - Testing runtime behavior
-      expect(createPsrFolderName(null)).toBe("");
+      expect(pascalCase(null)).toBe("");
       // @ts-ignore - Testing runtime behavior
-      expect(createPsrFolderName(undefined)).toBe("");
+      expect(pascalCase(undefined)).toBe("");
     });
 
     test("should handle simple words", () => {
-      expect(createPsrFolderName("hello")).toBe("Hello");
-      expect(createPsrFolderName("world")).toBe("World");
+      expect(pascalCase("hello")).toBe("Hello");
+      expect(pascalCase("world")).toBe("World");
     });
 
     test("should convert to PascalCase", () => {
-      expect(createPsrFolderName("hello world")).toBe("HelloWorld");
-      expect(createPsrFolderName("my class name")).toBe("MyClassName");
+      expect(pascalCase("hello world")).toBe("HelloWorld");
+      expect(pascalCase("my class name")).toBe("MyClassName");
     });
   });
 
   describe("German umlaut normalization", () => {
-    test("should normalize lowercase umlauts", () => {
-      expect(createPsrFolderName("café")).toBe("Cafe");
-      expect(createPsrFolderName("müller")).toBe("Mueller");
-      expect(createPsrFolderName("größe")).toBe("Groesse");
+    test("should normalize lowercase umlauts to lowercase", () => {
+      expect(pascalCase("café")).toBe("Cafe");
+      expect(pascalCase("müller")).toBe("Mueller");
+      expect(pascalCase("größe")).toBe("Groesse");
     });
 
-    test("should normalize uppercase umlauts", () => {
-      expect(createPsrFolderName("CAFÉ")).toBe("Cafe");
-      expect(createPsrFolderName("MÜLLER")).toBe("Mueller");
-      expect(createPsrFolderName("GRÖSSE")).toBe("Groesse");
+    test("should normalize uppercase umlauts to lowercase", () => {
+      expect(pascalCase("CAFÉ")).toBe("Cafe");
+      expect(pascalCase("MÜLLER")).toBe("Mueller");
+      expect(pascalCase("GRÖSSE")).toBe("Groesse");
     });
 
     test("should normalize ß character", () => {
-      expect(createPsrFolderName("weiß")).toBe("Weiss");
-      expect(createPsrFolderName("Straße")).toBe("Strasse");
+      expect(pascalCase("weiß")).toBe("Weiss");
+      expect(pascalCase("Straße")).toBe("Strasse");
     });
 
     test("should handle mixed umlauts", () => {
-      expect(createPsrFolderName("café müller")).toBe("CafeMueller");
-      expect(createPsrFolderName("größe der tür")).toBe("GroesseDerTuer");
+      expect(pascalCase("café müller")).toBe("CafeMueller");
+      expect(pascalCase("größe der tür")).toBe("GroesseDerTuer");
+    });
+  });
+
+  describe("Accent normalization (preserve case)", () => {
+    test("should preserve case for non-German accents", () => {
+      expect(pascalCase("Émile")).toBe("Emile");
+      expect(pascalCase("émile")).toBe("Emile");
+      expect(pascalCase("ÉMILE")).toBe("Emile");
+      expect(pascalCase("Ê test")).toBe("ETest");
+      expect(pascalCase("ê test")).toBe("ETest");
     });
   });
 
   describe("Special character handling", () => {
     test("should replace invalid characters with spaces", () => {
-      expect(createPsrFolderName("hello-world")).toBe("HelloWorld");
-      expect(createPsrFolderName("test_name")).toBe("TestName");
-      expect(createPsrFolderName("file.name")).toBe("FileName");
-      expect(createPsrFolderName("path/to/file")).toBe("PathToFile");
+      expect(pascalCase("hello-world")).toBe("HelloWorld");
+      expect(pascalCase("test_name")).toBe("TestName");
+      expect(pascalCase("file.name")).toBe("FileName");
+      expect(pascalCase("path/to/file")).toBe("PathToFile");
     });
 
     test("should handle multiple special characters", () => {
-      expect(createPsrFolderName("hello---world")).toBe("HelloWorld");
-      expect(createPsrFolderName("test@#$name")).toBe("TestName");
-      expect(createPsrFolderName("a...b...c")).toBe("ABC");
+      expect(pascalCase("hello---world")).toBe("HelloWorld");
+      expect(pascalCase("test@#$name")).toBe("TestName");
+      expect(pascalCase("a...b...c")).toBe("ABC");
     });
 
     test("should filter empty words", () => {
-      expect(createPsrFolderName("hello  world")).toBe("HelloWorld");
-      expect(createPsrFolderName("test   name")).toBe("TestName");
+      expect(pascalCase("hello  world")).toBe("HelloWorld");
+      expect(pascalCase("test   name")).toBe("TestName");
     });
   });
 
   describe("Number handling", () => {
     test("should preserve numbers in words", () => {
-      expect(createPsrFolderName("version2")).toBe("Version2");
-      expect(createPsrFolderName("test123")).toBe("Test123");
+      expect(pascalCase("version2")).toBe("Version2");
+      expect(pascalCase("test123")).toBe("Test123");
     });
 
     test("should handle names starting with digit", () => {
-      expect(createPsrFolderName("123test")).toBe("123test");
-      expect(createPsrFolderName("2nd version")).toBe("2ndVersion");
-      expect(createPsrFolderName("0config")).toBe("0config");
+      expect(pascalCase("123test")).toBe("123test");
+      expect(pascalCase("2nd version")).toBe("2ndVersion");
+      expect(pascalCase("0config")).toBe("0config");
     });
 
     test("should handle mixed numbers and letters", () => {
-      expect(createPsrFolderName("api version 2")).toBe("ApiVersion2");
-      expect(createPsrFolderName("test 123 name")).toBe("Test123Name");
+      expect(pascalCase("api version 2")).toBe("ApiVersion2");
+      expect(pascalCase("test 123 name")).toBe("Test123Name");
     });
   });
 
   describe("Case handling", () => {
     test("should handle all lowercase", () => {
-      expect(createPsrFolderName("hello world")).toBe("HelloWorld");
-      expect(createPsrFolderName("my class name")).toBe("MyClassName");
+      expect(pascalCase("hello world")).toBe("HelloWorld");
+      expect(pascalCase("my class name")).toBe("MyClassName");
     });
 
     test("should handle all uppercase", () => {
-      expect(createPsrFolderName("HELLO WORLD")).toBe("HelloWorld");
-      expect(createPsrFolderName("MY CLASS NAME")).toBe("MyClassName");
+      expect(pascalCase("HELLO WORLD")).toBe("HelloWorld");
+      expect(pascalCase("MY CLASS NAME")).toBe("MyClassName");
     });
 
     test("should handle mixed case", () => {
-      expect(createPsrFolderName("Hello World")).toBe("HelloWorld");
-      expect(createPsrFolderName("myClassName")).toBe("Myclassname");
+      expect(pascalCase("Hello World")).toBe("HelloWorld");
+      expect(pascalCase("myClassName")).toBe("Myclassname");
     });
   });
 
   describe("Edge cases", () => {
     test("should handle only special characters", () => {
-      expect(createPsrFolderName("!!!")).toBe("");
-      expect(createPsrFolderName("@#$%")).toBe("");
-      expect(createPsrFolderName("---")).toBe("");
+      expect(pascalCase("!!!")).toBe("");
+      expect(pascalCase("@#$%")).toBe("");
+      expect(pascalCase("---")).toBe("");
     });
 
     test("should handle single character words", () => {
-      expect(createPsrFolderName("a b c")).toBe("ABC");
-      expect(createPsrFolderName("x y z")).toBe("XYZ");
+      expect(pascalCase("a b c")).toBe("ABC");
+      expect(pascalCase("x y z")).toBe("XYZ");
     });
 
     test("should handle complex mixed content", () => {
-      expect(createPsrFolderName("My_Class-Name.v2")).toBe("MyClassNameV2");
-      expect(createPsrFolderName("API_VERSION_2.0")).toBe("ApiVersion20");
+      expect(pascalCase("My_Class-Name.v2")).toBe("MyClassNameV2");
+      expect(pascalCase("API_VERSION_2.0")).toBe("ApiVersion20");
+    });
+  });
+});
+
+describe("snailCase", () => {
+  describe("Basic functionality", () => {
+    test("should return empty string for empty input", () => {
+      expect(snailCase("")).toBe("");
+    });
+
+    test("should return empty string for null/undefined input", () => {
+      // @ts-ignore - Testing runtime behavior
+      expect(snailCase(null)).toBe("");
+      // @ts-ignore - Testing runtime behavior
+      expect(snailCase(undefined)).toBe("");
+    });
+
+    test("should handle simple words", () => {
+      expect(snailCase("hello")).toBe("hello");
+      expect(snailCase("world")).toBe("world");
+    });
+
+    test("should convert to lowercase", () => {
+      expect(snailCase("HELLO")).toBe("hello");
+      expect(snailCase("Hello")).toBe("hello");
+      expect(snailCase("HeLLo")).toBe("he_llo"); // Mixed case gets split at boundaries
+    });
+  });
+
+  describe("German umlaut normalization", () => {
+    test("should normalize lowercase umlauts", () => {
+      expect(snailCase("café")).toBe("cafe");
+      expect(snailCase("müller")).toBe("mueller");
+      expect(snailCase("größe")).toBe("groesse");
+    });
+
+    test("should normalize uppercase umlauts", () => {
+      expect(snailCase("CAFÉ")).toBe("cafe");
+      expect(snailCase("MÜLLER")).toBe("mueller");
+      expect(snailCase("GRÖSSE")).toBe("groesse");
+    });
+
+    test("should normalize ß character", () => {
+      expect(snailCase("weiß")).toBe("weiss");
+      expect(snailCase("Straße")).toBe("strasse");
+    });
+
+    test("should handle mixed umlauts", () => {
+      expect(snailCase("Café & Müller")).toBe("cafe_mueller");
+      expect(snailCase("Größe der Tür")).toBe("groesse_der_tuer");
+    });
+  });
+
+  describe("Accent normalization (case preserved for non-German)", () => {
+    test("should preserve case for non-German accents in lowercase result", () => {
+      expect(snailCase("Émile")).toBe("emile");
+      expect(snailCase("émile")).toBe("emile");
+      expect(snailCase("Ê test")).toBe("e_test");
+      expect(snailCase("ê test")).toBe("e_test");
+    });
+  });
+
+  describe("CamelCase and acronym handling", () => {
+    test("should split standard camelCase", () => {
+      expect(snailCase("spielName")).toBe("spiel_name");
+      expect(snailCase("userName")).toBe("user_name");
+      expect(snailCase("myVariableName")).toBe("my_variable_name");
+    });
+
+    test("should handle acronyms followed by words", () => {
+      expect(snailCase("HTTPServer")).toBe("http_server");
+      expect(snailCase("XMLParser")).toBe("xml_parser");
+      expect(snailCase("APIClient")).toBe("api_client");
+    });
+
+    test("should handle lowercase/digit followed by acronym", () => {
+      expect(snailCase("SpielnameTEST")).toBe("spielname_test");
+      expect(snailCase("version2API")).toBe("version2_api");
+      expect(snailCase("dataDML")).toBe("data_dml");
+    });
+
+    test("should handle complex mixed cases", () => {
+      expect(snailCase("HTTPSAPIClient")).toBe("httpsapi_client"); // Complex acronym combinations
+      expect(snailCase("myHTTPServer")).toBe("my_http_server");
+    });
+  });
+
+  describe("Special character handling", () => {
+    test("should replace spaces with underscores", () => {
+      expect(snailCase("hello world")).toBe("hello_world");
+      expect(snailCase("multiple   spaces")).toBe("multiple_spaces");
+    });
+
+    test("should replace special characters with underscores", () => {
+      expect(snailCase("hello@world")).toBe("hello_world");
+      expect(snailCase("test&more")).toBe("test_more");
+      expect(snailCase("file.name")).toBe("file_name");
+      expect(snailCase("path/to/file")).toBe("path_to_file");
+    });
+
+    test("should collapse multiple underscores", () => {
+      expect(snailCase("hello___world")).toBe("hello_world");
+      expect(snailCase("test  &  more")).toBe("test_more");
+      expect(snailCase("a...b...c")).toBe("a_b_c");
+    });
+
+    test("should trim leading and trailing underscores", () => {
+      expect(snailCase("_hello_")).toBe("hello");
+      expect(snailCase("__test__")).toBe("test");
+      expect(snailCase("...word...")).toBe("word");
+    });
+  });
+
+  describe("Numbers handling", () => {
+    test("should preserve numbers", () => {
+      expect(snailCase("version2")).toBe("version2");
+      expect(snailCase("test123")).toBe("test123");
+      expect(snailCase("123test")).toBe("123test");
+    });
+
+    test("should handle numbers with camelCase", () => {
+      expect(snailCase("version2API")).toBe("version2_api");
+      expect(snailCase("test123Name")).toBe("test123_name");
+    });
+  });
+
+  describe("Edge cases", () => {
+    test("should handle only special characters", () => {
+      expect(snailCase("!!!")).toBe("");
+      expect(snailCase("@#$%")).toBe("");
+      expect(snailCase("___")).toBe("");
+    });
+
+    test("should handle mixed content", () => {
+      expect(snailCase("Hello World! This is a test.")).toBe("hello_world_this_is_a_test");
+      expect(snailCase("API_VERSION_2.0")).toBe("api_version_2_0");
     });
   });
 });
