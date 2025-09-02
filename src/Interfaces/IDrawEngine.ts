@@ -106,9 +106,9 @@ export interface IDrawEngine {
     rect: IRectangleBase | number[],
     strokeStyle?: number | string,
     fillStyle?: number | string,
-    angle?: number,
-    pivot?: IVector2D
-  ): IDrawEngine;
+    angle?: number|IVector2D|number[]|IVector2D[],
+    pivot?: number|number[]|IVector2D
+  |IVector2D[]): IDrawEngine;
   resetClip(): IDrawEngine;
   roundRectangle(
     rect: IRectangleBase,
