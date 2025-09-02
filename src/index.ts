@@ -11,6 +11,7 @@ import canvas from "./lib/canvas";
 import _createStore from "./lib/createStore";
 import DialogClass from "./lib/Dialog";
 import dom from "./lib/dom";
+import stringUtilsLib from "./lib/stringUtils";
 import CachedDataProviderClass from "./Provider/CachedDataProvider";
 import DialogProviderClass from "./service/DialogProvider";
 import ObjectStoreProviderClass from "./service/ObjectStoreProvider";
@@ -27,7 +28,8 @@ export default {
   ObjectStoreProvider: ObjectStoreProviderClass,
   canvasLib: canvas,
   createStore: _createStore,
-  domLib: dom
+  domLib: dom,
+  stringUtils: stringUtilsLib
 };
 
 // Named exports for individual components
@@ -40,6 +42,10 @@ export const DialogProvider = DialogProviderClass;
 export const domLib = dom;
 export const Eventhandler = EventHndl;
 export const ObjectStoreProvider = ObjectStoreProviderClass;
+export const stringUtils = stringUtilsLib;
+
+// Export string utility functions individually for convenience
+export { createSlug, createPsrFolderName } from "./lib/stringUtils";
 
 // Global type augmentation
 declare global {
