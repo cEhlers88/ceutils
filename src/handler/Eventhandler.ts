@@ -14,7 +14,7 @@ export default class {
     this.listeners[eventListenerInfo.index].callbacks.push(listener);
     return this;
   }
-  public dispatch(eventName: string, props?: unknown) {
+  public dispatch(eventName: string, props?: any) {
     const self = this;
     const eventListenerInfo = this.getEventListenerInfo(eventName);
     if (
@@ -31,9 +31,11 @@ export default class {
         }
       );
     } else {
-      if (eventName === "error") {
-        throw new Error("Unhandled error: " + JSON.stringify(props));
-      } else {
+      if(eventName==='error'){
+        const message = props && props.message ? props.message : "An unhandled error occurred";
+        const error = props && props.error ? props.error : props;
+        throw new Error(message + JSON.stringify(error));
+      }else{
         this.handleError({ message: "Event " + eventName + " not found." });
       }
     }

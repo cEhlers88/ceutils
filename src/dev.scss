@@ -1,0 +1,21 @@
+body {
+    background: #d8d8d8;
+    font-family: Arial, sans-serif;
+    .dynamic-examples {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+
+        .example-container {
+            flex: 1;
+            background: #e0e0e0;
+            border:0.1px solid #cccccc;
+            box-shadow: 0 0 3px 1px #cccccc;
+            padding: 10px;
+
+            h2 {
+                margin: 0;
+            }
+        }
+    }
+}
