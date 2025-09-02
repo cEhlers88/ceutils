@@ -1,257 +1,299 @@
-# CEUTILS - 23.08.2024
+# CEUTILS
+
+A comprehensive TypeScript/JavaScript utility library providing DOM manipulation, canvas drawing, data handling, vector mathematics, and component management tools for modern web development.
+
+[![npm version](https://badge.fury.io/js/%40cehlers88%2Fceutils.svg)](https://badge.fury.io/js/%40cehlers88%2Fceutils)
+[![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
+
+## Features
+
+- **DOM Library**: Simplified DOM manipulation with extended HTMLElement methods
+- **Canvas Library**: Easy-to-use 2D canvas drawing utilities
+- **Vector2D**: Comprehensive 2D vector mathematics for game development
+- **Data Handling**: Event-driven data management with caching
+- **Dialog System**: Abstract dialog management for modals and popups
+- **Object Store**: Global object storage and singleton management
+- **Component System**: React-like component management
+- **TypeScript Support**: Full TypeScript definitions included
 
 ## Installation
+
 ```bash
 npm install @cehlers88/ceutils
 ```
 
-## DOM-Utilities
-After installation, the DOM-Library can be used via the following import:
+## Quick Start
+
 ```javascript
-import {domLib} from "@cehlers88/ceutils";
+// Import specific utilities
+import { domLib, canvasLib, Vector2D, Datahandler } from "@cehlers88/ceutils";
+
+// Or import the entire library
+import ceutils from "@cehlers88/ceutils";
 ```
 
-### Element-Methods
-By using the DOM-Library, a number of new element methods are automatically available:
+## Core Libraries
 
-#### appendChilds(nodes:Elements[]):Element
-Adds a list of elements as child elements to the current element.
-Example:
-```javascript
-const nodes = [
-    document.createTextNode("Hello"),
-    document.createTextNode("World")
-];
-document.body.appendChilds(nodes);
-```
+### DOM Library
 
-#### createChild(tagName:string, properties:{[key:string]:any}):Element
-Creates a new element and adds it as a child element to the current element.
-Example:
-```javascript
-// Creates a new div element with the ID "myDiv" and the CSS class "myClass" and adds it as a child element to the body
-document.body.createChild("div", {id: "myDiv", class: "myClass"}); // (see Library-Functions/createElement for all possible properties)
-```
+Simplifies DOM manipulation with extended methods and utility functions.
 
-#### getParentByCondition(condition:(element:Element)=>boolean):?Element
-Returns the first parent element that meets the defined condition. If no parent element is found, "undefined" is returned.
-Example:
 ```javascript
-// Returns the first parent element that has the tag name "div"
-const result = document.body.getParentByCondition(element => element.tagName.toUpperCase() === "DIV");
-```
+import { domLib } from "@cehlers88/ceutils";
 
-#### getParentWithClass(className:string):?Element
-Returns the first parent element that has the specified CSS class. If no parent element is found, "undefined" is returned.
-Example:
-```javascript
-// Returns the first parent element that has the CSS class "myClass"
-const result = document.body.getParentWithClass("myClass");
-```
-
-#### removeAllChilds():Element
-Removes all child elements of the current element.
-Example:
-```javascript
-document.body.removeAllChilds();
-```
-
-### Library-Functions
-All functions of the DOM-Library are accessible through the "domLib" object.
-
-#### appendChilds(parent:Element, nodes:Elements[]):Element
-Adds a list of elements as child elements to the specified parent element.
-Example:
-```javascript
-domLib.appendChilds(document.body, [domLib.createElement("div"), domLib.createElement("div")]);
-```
-
-#### createElement(tagName:string, properties:{[key:string]:any}):Element
-Creates a new element with the specified properties and returns it.
-Example:
-```javascript
-// Creates a new div element with the ID "myDiv" and the CSS class "myClass"
-const element = domLib.createElement("div", {id: "myDiv", class: "myClass"});
-// It can now be appended to a parent element using appendChild:
-document.body.appendChild(element);
-```
-Example 2:
-```javascript
-// Creates a new div element with the ID "myDiv", the CSS class "myClass", a child span with text and adds it as a child element to the body
-document.body.appendChild(domLib.createElement("div", {
-    id: "myDiv", 
-    class: "myClass",
-    childNodes: [
-        domLib.createElement("span", {innerText: "Hello World"})
-    ]
-}));
-// Add button with click event listener to the body
-document.body.appendChild(domLib.createElement("button", {
+// Create elements with properties and events
+const button = domLib.createElement("button", {
     innerText: "Click me!",
-    onClick: () => {
-        console.log("Button clicked!");
-    }
-}));
+    class: "btn-primary",
+    onClick: () => console.log("Button clicked!")
+});
 
-// Or do it in one step:
-document.body.appendChilds([ // ...s !
-  domLib.createElement("div", {
-    id: "myDiv",
-    class: "myClass",
-    childNodes: [
-      domLib.createElement("span", {innerText: "Hello World"})
-    ]
-  }),
-  domLib.createElement("button", {
-    innerText: "Click me!",
-    onClick: () => {
-      console.log("Button clicked!");
-    }
-  })
-]);
-
+// Extended HTMLElement methods
+document.body.appendChilds([button]);
+const parent = button.getParentWithClass("container");
 ```
-The following properties can be defined optionally:
-- "childNodes": an array of elements to be added as child elements.
-- "data": an object with data to be added as "data-*" attributes.
-- "innerText": the text content of the element.
-- "onBlur": an event listener for the "blur" event.
-- "onChange": an event listener for the "change" event.
-- "onClick": an event listener for the "click" event.
-- "onFocus": an event listener for the "focus" event.
-- "onKeyDown": an event listener for the "keydown" event.
-- "onKeyUp": an event listener for the "keyup" event.
-- "onSubmit": an event listener for the "submit" event.
-- "onLoad": an event listener for the "load" event.
-- "onMouseOver": an event listener for the "mouseover" event.
-- "onMouseDown": an event listener for the "mousedown" event.
-- "onMouseEnter": an event listener for the "mouseenter" event.
-- "onMouseLeave": an event listener for the "mouseleave" event.
-- "onMouseUp": an event listener for the "mouseup" event.
-- "onMouseMove": an event listener for the "mousemove" event.
-- "onMouseOut": an event listener for the "mouseout" event.
-- as well as all common element attributes.
 
-if there is a property that is not listed here, it can be added as an attribute to the element:
+**[→ See complete DOM Library documentation](./doc/domLib.md)**
+
+### Canvas Library
+
+Simplified 2D canvas drawing with a clean API.
+
 ```javascript
-const element = domLib.createElement("div", {id: "myDiv", class: "myClass"});
-element.setAttribute("missing-attribute", "myValue");
-// same as event listeners:
-element.addEventListener("missing-event", () => {
-    // do something cool
+import { canvasLib } from "@cehlers88/ceutils";
+
+const canvas = document.getElementById("myCanvas");
+const drawEngine = canvasLib.getDrawEngine(canvas);
+
+// Draw a rectangle with fill and stroke
+drawEngine.rectangle({
+    x: 10, y: 10,
+    width: 100, height: 100
+}, "black", "yellow");
+```
+
+**[→ See complete Canvas Library documentation](./doc/canvasLib.md)**
+
+### Vector2D
+
+Comprehensive 2D vector mathematics for game development and animations.
+
+```javascript
+import { Vector2D } from "@cehlers88/ceutils";
+
+const position = new Vector2D(100, 200);
+const target = new Vector2D(300, 400);
+
+// Calculate distance and movement
+const distance = position.doWithVector(target).calculateDistance();
+const moveVector = position.doWithVector(target).getNomalizedMoveVector({ x: 5, y: 5 });
+
+// Apply movement
+position.addVector(new Vector2D(moveVector.x, moveVector.y));
+```
+
+## Advanced Components
+
+### Data Handler
+
+Event-driven data management with automatic change detection.
+
+```javascript
+import { Datahandler } from "@cehlers88/ceutils";
+
+const dataHandler = new Datahandler();
+
+// Set and get data
+dataHandler.setData("user", { name: "John", age: 30 });
+console.log(dataHandler.getData("user")); // { name: "John", age: 30 }
+
+// Listen for changes
+dataHandler.addListener("dataChanged", (data) => {
+    console.log("Data changed:", data);
 });
 ```
 
-#### getElement(elementNeedle:string):any
-Returns the element(s) that match(es) the specified selector.
-Example:
+### Cached Data Provider
+
+Reduces API calls by caching responses.
+
 ```javascript
-// Returns the element with the ID "myDiv"
-const element_Example01 = domLib.getElement("myDiv"); // means: document.getElementById("myDiv")
-const element_Example02 = domLib.getElement("#myDiv"); // means: document.getElementById("myDiv") too
-const element_Example03 = domLib.getElement(".myDiv"); // means: document.getElementsByClassName("myDiv")
-const element_Example04 = domLib.getElement("?.myDiv"); // means: document.querySelector(".myDiv")
-const element_Example05 = domLib.getElement("?*.myDiv"); // means: document.querySelectorAll(".myDiv")
+import { CachedDataProvider } from "@cehlers88/ceutils";
 
-```
+const provider = new CachedDataProvider();
 
-#### getParentWithClass(element:Element, className:string):?Element
-Returns the first parent element that has the specified CSS class. If no parent element is found, "undefined" is returned.
-Example:
-```javascript
-// Returns the first parent element that has the CSS class "myClass"
-const result = domLib.getParentWithClass(document.body, "myClass");
-```
-
-#### removeAllChilds(element:Element):Element
-Removes all child elements of the specified element.
-Example:
-```javascript
-domLib.removeAllChilds(document.body);
-```
-
-## Components
-
-### CachedDataProvider
-The "CachedDataProvider" reduces the number of API calls by caching the data and retrieving it from the cache when needed. 
-Each instance of a CachedDataProvider object has its own cache that can be manually cleared.
-
-#### Usage 
-```javascript
-// Create a new instance of CachedDataProvider
-import CachedDataProvider from "@cehlers88/ceutils/build/Provider/CachedDataProvider";
-const dataProvider = new CachedDataProvider();
-
-// Using the dataProvider to fetch data
-dataProvider.fetch({
-  url: "https://xyz.net",
-  evalJson: true, // Optional
-  method: "GET", // Optional
-  data: { // Optional
-  }
-}).then(v=>{
-    // handle response data
+// Fetch data (cached automatically)
+provider.fetch({
+    url: "https://api.example.com/users",
+    evalJson: true
+}).then(data => {
+    console.log("User data:", data);
 });
 
-// Clear the cache
-dataProvider.clearCache();
+// Clear cache when needed
+provider.clearCache();
 ```
 
-### ComponentStarter
+### Dialog System
 
-#### Register service 
-`service.js`
+Abstract dialog management for modals and popups.
+
 ```javascript
-import ComponentBaseService from "./ComponentBaseService";
-export default class MyService extends ComponentBaseService {
-...
-    getName() {
-        return "MyService";
+import { Dialog, DialogProvider } from "@cehlers88/ceutils";
+
+class ConfirmDialog extends Dialog {
+    constructor(message) {
+        super();
+        this.name = "ConfirmDialog";
+        this.props = { message };
     }
-...
-}
-```
-`app.js`
-```typescript
-import ComponentStarter from "./src/service/ComponentStarter";
-import MyService from "./service"
-
-const componentStarter = new ComponentStarter();
-componentStarter.registerComponent(MyService);
-```
-
-#### Start React-Component
-```typescript
-import ComponentStarter from "./src/service/ComponentStarter";
-const test = new ComponentStarter();
-test.registerComponent()
-```
-
-```html
-...
-    <script >
     
-    </script>
-...
+    getAcceptations() {
+        return ["yes", "no"];
+    }
+}
+
+const dialogProvider = new DialogProvider();
+dialogProvider.showDialog(new ConfirmDialog("Are you sure?"))
+    .then(result => {
+        console.log("User chose:", result.acceptance);
+    });
 ```
 
-### Eventhandler
+### Object Store Provider
 
-	- addListener
-	- dispatch
-	- setErrorHandler
-	- on
+Global object storage and singleton management.
 
-### Interfaces
-- ICachedDataProviderFetchOptions
-  - url:string
-  - evalJson:?boolean
-  - method:?string
-  - data:?{[key:string]:any}
-  
-- IDataEntry
-  - key:string
-  - value:any
+```javascript
+import { ObjectStoreProvider } from "@cehlers88/ceutils";
 
+const store = new ObjectStoreProvider();
 
-	
+// Store objects globally
+store.addObject(new MyService(), "mainService", { group: "services" });
+
+// Retrieve objects
+const service = store.getObject("mainService").instance;
+const allServices = store.getObjectsByGroup("services");
+```
+
+**[→ See complete Components documentation](./doc/components.md)**
+
+## Event Handler
+
+Provides event-driven architecture with listener management.
+
+```javascript
+import { Eventhandler } from "@cehlers88/ceutils";
+
+class MyComponent extends Eventhandler {
+    constructor() {
+        super();
+        this.value = 0;
+    }
+    
+    increment() {
+        this.value++;
+        this.dispatch("valueChanged", this.value);
+    }
+}
+
+const component = new MyComponent();
+component.addListener("valueChanged", (value) => {
+    console.log("New value:", value);
+});
+```
+
+## API Reference
+
+### Available Exports
+
+```javascript
+// Main exports
+import {
+    // Core libraries
+    domLib,
+    canvasLib,
+    
+    // Classes
+    Vector2D,
+    Datahandler,
+    Eventhandler,
+    Dialog,
+    CachedDataProvider,
+    DialogProvider,
+    ObjectStoreProvider,
+    
+    // Utilities
+    createStore
+} from "@cehlers88/ceutils";
+
+// Default export (contains all above)
+import ceutils from "@cehlers88/ceutils";
+```
+
+### TypeScript Support
+
+Full TypeScript definitions are included. Key interfaces:
+
+- `IVector2D` - Vector interface
+- `ICreateElementProperties` - DOM element properties
+- `IDataEntry` - Data handler entry
+- `IDialog` - Dialog interface
+- `IStoredObject` - Object store entry
+
+## Browser Compatibility
+
+- **Modern Browsers**: Chrome 60+, Firefox 60+, Safari 12+, Edge 79+
+- **Node.js**: 12+ (for server-side usage)
+- **Dependencies**: React 17+ (for React components)
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Build the library
+npm run build
+
+# Run tests
+npm test
+
+# Lint code
+npm run lint
+
+# Format code
+npm run format
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the ISC License - see the [LICENSE](LICENSE) file for details.
+
+## Author
+
+**Christoph Ehlers** - [webmaster@c-ehlers.de](mailto:webmaster@c-ehlers.de)
+
+## Changelog
+
+### Version 1.2.77
+- Enhanced TypeScript support
+- Improved documentation
+- Added Vector2D class
+- Extended canvas utilities
+- Bug fixes and optimizations
+
+## Support
+
+- 📖 [Documentation](./doc/)
+- 🐛 [Issues](https://github.com/cEhlers88/ceutils/issues)
+- 💬 [Discussions](https://github.com/cEhlers88/ceutils/discussions)

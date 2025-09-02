@@ -2,7 +2,8 @@ import Eventhandler from "../handler/Eventhandler";
 
 const createStore = () => {
   class Store extends Eventhandler {
-    public __data: {};
+    // tslint:disable-next-line:variable-name
+    private __data: {};
 
     constructor() {
       super();
