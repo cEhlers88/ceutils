@@ -5,7 +5,7 @@
  * @author Christoph Ehlers
  */
 export default interface IPosition {
-    x:number;
-    y:number;
-    z?:number;
+  x: number;
+  y: number;
+  z?: number;
 }

@@ -6,7 +6,7 @@ import _createStore from "./lib/createStore";
 import DialogClass from "./lib/Dialog";
 import dom from "./lib/dom";
 import CachedDataProviderClass from "./Provider/CachedDataProvider";
-import DialogProviderClass  from "./service/DialogProvider";
+import DialogProviderClass from "./service/DialogProvider";
 import ObjectStoreProviderClass from "./service/ObjectStoreProvider";
 
 export default {
@@ -32,6 +32,6 @@ export const Eventhandler = EventHndl;
 export const ObjectStoreProvider = ObjectStoreProviderClass;
 
 declare global {
-    // tslint:disable-next-line:interface-name no-empty-interface
-    interface HTMLElement extends IHtmlElementExtensions {}
+  // tslint:disable-next-line:interface-name no-empty-interface
+  interface HTMLElement extends IHtmlElementExtensions {}
 }
