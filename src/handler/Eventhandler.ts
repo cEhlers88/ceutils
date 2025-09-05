@@ -31,11 +31,14 @@ export default class {
         }
       );
     } else {
-      if(eventName==='error'){
-        const message = props && props.message ? props.message : "An unhandled error occurred";
+      if (eventName === "error") {
+        const message =
+          props && props.message
+            ? props.message
+            : "An unhandled error occurred";
         const error = props && props.error ? props.error : props;
         throw new Error(message + JSON.stringify(error));
-      }else{
+      } else {
         this.handleError({ message: "Event " + eventName + " not found." });
       }
     }
