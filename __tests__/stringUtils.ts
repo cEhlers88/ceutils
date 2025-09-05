@@ -1,4 +1,4 @@
-import { createSlug, pascalCase, snailCase } from "../src/lib/stringUtils";
+import { createSlug, pascalCase, snailCase, sprintf } from "../src/lib/stringUtils";
 
 describe("createSlug", () => {
   describe("Basic functionality", () => {
@@ -391,6 +391,284 @@ describe("snailCase", () => {
     test("should handle mixed content", () => {
       expect(snailCase("Hello World! This is a test.")).toBe("hello_world_this_is_a_test");
       expect(snailCase("API_VERSION_2.0")).toBe("api_version_2_0");
+    });
+  });
+});
+
+describe("sprintf", () => {
+  describe("Basic functionality", () => {
+    test("should return empty string for empty format", () => {
+      expect(sprintf("")).toBe("");
+    });
+
+    test("should return format string if no placeholders", () => {
+      expect(sprintf("hello world")).toBe("hello world");
+    });
+
+    test("should handle null/undefined format gracefully", () => {
+      // @ts-ignore - Testing runtime behavior
+      expect(sprintf(null)).toBe("");
+      // @ts-ignore - Testing runtime behavior
+      expect(sprintf(undefined)).toBe("");
+    });
+  });
+
+  describe("String formatting (%s)", () => {
+    test("should format basic string", () => {
+      expect(sprintf("Hello %s", "World")).toBe("Hello World");
+      expect(sprintf("%s %s", "Hello", "World")).toBe("Hello World");
+    });
+
+    test("should handle null/undefined arguments", () => {
+      expect(sprintf("Hello %s", null)).toBe("Hello null");
+      expect(sprintf("Hello %s", undefined)).toBe("Hello ");
+    });
+
+    test("should handle precision for strings", () => {
+      expect(sprintf("%.3s", "HelloWorld")).toBe("Hel");
+      expect(sprintf("%.0s", "Hello")).toBe("");
+      expect(sprintf("%.10s", "Hi")).toBe("Hi");
+    });
+
+    test("should handle width for strings", () => {
+      expect(sprintf("%5s", "Hi")).toBe("   Hi");
+      expect(sprintf("%-5s", "Hi")).toBe("Hi   ");
+    });
+
+    test("should handle width and precision together", () => {
+      expect(sprintf("%10.3s", "HelloWorld")).toBe("       Hel");
+      expect(sprintf("%-10.3s", "HelloWorld")).toBe("Hel       ");
+    });
+  });
+
+  describe("Integer formatting (%d, %i, %u)", () => {
+    test("should format basic integers", () => {
+      expect(sprintf("%d", 42)).toBe("42");
+      expect(sprintf("%i", -123)).toBe("-123");
+      expect(sprintf("%u", -42)).toBe("42"); // unsigned
+    });
+
+    test("should handle zero", () => {
+      expect(sprintf("%d", 0)).toBe("0");
+      expect(sprintf("%u", 0)).toBe("0");
+    });
+
+    test("should handle non-numeric input", () => {
+      expect(sprintf("%d", "abc")).toBe("0");
+      expect(sprintf("%d", null)).toBe("0");
+      expect(sprintf("%d", undefined)).toBe("0");
+    });
+
+    test("should handle sign flags", () => {
+      expect(sprintf("%+d", 42)).toBe("+42");
+      expect(sprintf("%+d", -42)).toBe("-42");
+      expect(sprintf("% d", 42)).toBe(" 42");
+      expect(sprintf("% d", -42)).toBe("-42");
+    });
+
+    test("should handle width and zero padding", () => {
+      expect(sprintf("%5d", 42)).toBe("   42");
+      expect(sprintf("%05d", 42)).toBe("00042");
+      expect(sprintf("%-5d", 42)).toBe("42   ");
+      expect(sprintf("%+05d", 42)).toBe("+0042");
+    });
+  });
+
+  describe("Floating point formatting (%f, %F)", () => {
+    test("should format basic floats", () => {
+      expect(sprintf("%f", 3.14159)).toBe("3.141590");
+      expect(sprintf("%F", 3.14159)).toBe("3.141590");
+    });
+
+    test("should handle precision", () => {
+      expect(sprintf("%.2f", 3.14159)).toBe("3.14");
+      expect(sprintf("%.0f", 3.14159)).toBe("3");
+      expect(sprintf("%.4f", 3.1)).toBe("3.1000");
+    });
+
+    test("should handle width and precision", () => {
+      expect(sprintf("%8.2f", 3.14159)).toBe("    3.14");
+      expect(sprintf("%08.2f", 3.14159)).toBe("00003.14");
+      expect(sprintf("%-8.2f", 3.14159)).toBe("3.14    ");
+    });
+
+    test("should handle sign flags", () => {
+      expect(sprintf("%+.2f", 3.14)).toBe("+3.14");
+      expect(sprintf("% .2f", 3.14)).toBe(" 3.14");
+      expect(sprintf("%+.2f", -3.14)).toBe("-3.14");
+    });
+
+    test("should handle non-numeric input", () => {
+      expect(sprintf("%.2f", "abc")).toBe("0.00");
+      expect(sprintf("%.2f", null)).toBe("0.00");
+    });
+  });
+
+  describe("Scientific notation (%e, %E)", () => {
+    test("should format in scientific notation", () => {
+      expect(sprintf("%e", 1234.5)).toBe("1.234500e+3");
+      expect(sprintf("%E", 1234.5)).toBe("1.234500E+3");
+    });
+
+    test("should handle precision", () => {
+      expect(sprintf("%.2e", 1234.5)).toBe("1.23e+3");
+      expect(sprintf("%.0e", 1234.5)).toBe("1e+3");
+    });
+
+    test("should handle small numbers", () => {
+      expect(sprintf("%.2e", 0.00123)).toBe("1.23e-3");
+      expect(sprintf("%.2E", 0.00123)).toBe("1.23E-3");
+    });
+
+    test("should handle sign flags", () => {
+      expect(sprintf("%+.2e", 123.45)).toBe("+1.23e+2");
+      expect(sprintf("% .2e", 123.45)).toBe(" 1.23e+2");
+    });
+  });
+
+  describe("General format (%g, %G)", () => {
+    test("should choose shortest representation", () => {
+      expect(sprintf("%.4g", 1234)).toBe("1234");
+      expect(sprintf("%.4g", 0.00001234)).toBe("1.234e-5");
+      expect(sprintf("%.4G", 0.00001234)).toBe("1.234E-5");
+    });
+
+    test("should remove trailing zeros", () => {
+      expect(sprintf("%.6g", 1.2300)).toBe("1.23");
+      expect(sprintf("%.6g", 1000.0)).toBe("1000");
+    });
+
+    test("should handle sign flags", () => {
+      expect(sprintf("%+g", 123.0)).toBe("+123");
+      expect(sprintf("% g", 123.0)).toBe(" 123");
+    });
+  });
+
+  describe("Hexadecimal formatting (%x, %X)", () => {
+    test("should format in hexadecimal", () => {
+      expect(sprintf("%x", 255)).toBe("ff");
+      expect(sprintf("%X", 255)).toBe("FF");
+      expect(sprintf("%x", 0)).toBe("0");
+    });
+
+    test("should handle negative numbers", () => {
+      expect(sprintf("%x", -255)).toBe("ff");
+      expect(sprintf("%X", -255)).toBe("FF");
+    });
+
+    test("should handle alternate form", () => {
+      expect(sprintf("%#x", 255)).toBe("0xff");
+      expect(sprintf("%#X", 255)).toBe("0XFF");
+      expect(sprintf("%#x", 0)).toBe("0");
+    });
+
+    test("should handle width and padding", () => {
+      expect(sprintf("%4x", 255)).toBe("  ff");
+      expect(sprintf("%04x", 255)).toBe("00ff");
+      expect(sprintf("%-4x", 255)).toBe("ff  ");
+    });
+  });
+
+  describe("Octal formatting (%o)", () => {
+    test("should format in octal", () => {
+      expect(sprintf("%o", 64)).toBe("100");
+      expect(sprintf("%o", 0)).toBe("0");
+    });
+
+    test("should handle negative numbers", () => {
+      expect(sprintf("%o", -64)).toBe("100");
+    });
+
+    test("should handle alternate form", () => {
+      expect(sprintf("%#o", 64)).toBe("0100");
+      expect(sprintf("%#o", 0)).toBe("0");
+    });
+
+    test("should handle width and padding", () => {
+      expect(sprintf("%5o", 64)).toBe("  100");
+      expect(sprintf("%05o", 64)).toBe("00100");
+    });
+  });
+
+  describe("Character formatting (%c)", () => {
+    test("should format character codes", () => {
+      expect(sprintf("%c", 65)).toBe("A");
+      expect(sprintf("%c", 97)).toBe("a");
+      expect(sprintf("%c %c", 72, 105)).toBe("H i");
+    });
+
+    test("should handle zero and non-numeric", () => {
+      expect(sprintf("%c", 0)).toMatch(/\x00/);
+      expect(sprintf("%c", "abc")).toBe("\x00");
+    });
+  });
+
+  describe("Literal percent (%%) ", () => {
+    test("should output literal percent", () => {
+      expect(sprintf("100%%")).toBe("100%");
+      expect(sprintf("%%d", 42)).toBe("%d");
+      expect(sprintf("Progress: %d%%", 50)).toBe("Progress: 50%");
+    });
+  });
+
+  describe("Dynamic width and precision (*)", () => {
+    test("should handle dynamic width", () => {
+      expect(sprintf("%*s", 5, "Hi")).toBe("   Hi");
+      expect(sprintf("%-*s", 5, "Hi")).toBe("Hi   ");
+    });
+
+    test("should handle dynamic precision", () => {
+      expect(sprintf("%.*s", 3, "HelloWorld")).toBe("Hel");
+      expect(sprintf("%.*f", 2, 3.14159)).toBe("3.14");
+    });
+
+    test("should handle both dynamic width and precision", () => {
+      expect(sprintf("%*.*s", 10, 3, "HelloWorld")).toBe("       Hel");
+      expect(sprintf("%*.*f", 8, 2, 3.14159)).toBe("    3.14");
+    });
+
+    test("should handle negative or zero dynamic values", () => {
+      expect(sprintf("%*s", -5, "Hi")).toBe("Hi");
+      expect(sprintf("%*s", 0, "Hi")).toBe("Hi");
+      expect(sprintf("%.*s", -3, "Hello")).toBe("Hello");
+      expect(sprintf("%.*f", -2, 3.14159)).toBe("3.141590");
+    });
+  });
+
+  describe("Complex format strings", () => {
+    test("should handle multiple placeholders", () => {
+      expect(sprintf("Hello %s, you have %d messages and %.1f%% battery", "John", 5, 78.9))
+        .toBe("Hello John, you have 5 messages and 78.9% battery");
+    });
+
+    test("should handle mixed formatting options", () => {
+      expect(sprintf("%s: %+08.2f (%#x)", "Value", 42.5, 255))
+        .toBe("Value: +0042.50 (0xff)");
+    });
+
+    test("should handle edge case with no arguments", () => {
+      expect(sprintf("No placeholders here")).toBe("No placeholders here");
+      expect(sprintf("%s %d")).toBe(" 0"); // Missing arguments: %s->empty, %d->0
+    });
+  });
+
+  describe("Edge cases and error handling", () => {
+    test("should handle unknown format specifiers", () => {
+      expect(sprintf("%z", 42)).toBe("%z");
+      expect(sprintf("%q test %s", "hello")).toBe("%q test hello");
+    });
+
+    test("should handle malformed format strings", () => {
+      expect(sprintf("%%% test")).toBe("%% test");
+      expect(sprintf("%")).toBe("%");
+    });
+
+    test("should handle more arguments than placeholders", () => {
+      expect(sprintf("Hello %s", "World", "Extra")).toBe("Hello World");
+    });
+
+    test("should handle fewer arguments than placeholders", () => {
+      expect(sprintf("Hello %s %d")).toBe("Hello  0");
     });
   });
 });
