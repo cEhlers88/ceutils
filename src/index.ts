@@ -45,7 +45,7 @@ export const ObjectStoreProvider = ObjectStoreProviderClass;
 export const stringUtils = stringUtilsLib;
 
 // Export string utility functions individually for convenience
-export { createSlug, pascalCase, snailCase } from "./lib/stringUtils";
+export { createSlug, pascalCase, snailCase, sprintf } from "./lib/stringUtils";
 
 // Global type augmentation
 declare global {
