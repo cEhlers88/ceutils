@@ -8,6 +8,7 @@ import CanvasEngineAnalyzer from "../Analyzer/CanvasEngineAnalyzer";
 import Canvas2dDrawEngine from "../Engine/Canvas2dDrawEngine";
 import { IDrawEngine } from "../Interfaces/IDrawEngine";
 import { drawEngine2dMeta } from "./drawEngine2dMeta";
+import Vector2DClass from "../Vector2D";
 const getDrawEngine = (
   canvas: HTMLCanvasElement,
   global: boolean = false
@@ -34,5 +35,6 @@ export default {
   DrawEngine2D: Canvas2dDrawEngine,
   drawEngine2dMeta,
   getDrawEngine,
-  getDrawEngineAnalyzed
+  getDrawEngineAnalyzed,
+  Vector2D: Vector2DClass
 };
